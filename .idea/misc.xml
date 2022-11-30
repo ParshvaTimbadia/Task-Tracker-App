@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Divit/AndroidStudioProjects/NUMAD22Fa_Team51_Project/app/src/main/res/layout/activity_main.xml" value="0.25742574257425743" />
+        <entry key="..\:/Users/Divit/AndroidStudioProjects/NUMAD22Fa_Team51_Project/app/src/main/res/layout/activity_sign_up.xml" value="0.3671875" />
+        <entry key="..\:/Users/Divit/AndroidStudioProjects/NUMAD22Fa_Team51_Project/app/src/main/res/layout/activity_splash.xml" value="0.3671875" />
         <entry key="..\:/Users/Divit/AndroidStudioProjects/NUMAD22Fa_Team51_Project/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2245" />
         <entry key="..\:/Users/Divit/AndroidStudioProjects/NUMAD22Fa_Team51_Project/app/src/main/res/mipmap-anydpi-v26/ic_launcher_team_51_project.xml" value="0.2245" />
       </map>

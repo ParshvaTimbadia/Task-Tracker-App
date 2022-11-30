@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">NUMAD22Fa_Team51_Project</string>
+    <string name="application_name">TaskTracker</string>
+    <string name="intro_helper_text">Click Sign Up, if this is your first time using this app. If you already have an account, enter your credentials and simply click Sign In!</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="username">UserName</string>
+    <string name="register">Register</string>
+    <string name="sign_up_helper_text">Enter your desired username, email and password, to set up an account</string>
 </resources>
