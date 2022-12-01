@@ -6,7 +6,12 @@
     <string name="password">Password</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
+    <string name="sign_out">Sign Out</string>
     <string name="username">UserName</string>
     <string name="register">Register</string>
     <string name="sign_up_helper_text">Enter your desired username, email and password, to set up an account</string>
+    <string name="project_board_illustration">project_board_illustration</string>
+    <string name="login_board_illustration">login board illustration</string>
+    <string name="profile_image">profile image</string>
+    <string name="my_profile">My profile</string>
 </resources>

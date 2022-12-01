@@ -6,14 +6,26 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class SplashActivity extends AppCompatActivity {
+
+    private FirebaseAuth mAuth;
+    private FirebaseUser firebaseUser;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        if (checkIfFirebaseUser()){
+            intent = new Intent(SplashActivity.this, DashboardActivity.class);
+        }
+        else{
+            intent = new Intent(SplashActivity.this, MainActivity.class);
+        }
 
         final Runnable r = new Runnable() {
             public void run() {
@@ -24,5 +36,16 @@ public class SplashActivity extends AppCompatActivity {
 
         Handler handler = new Handler();
         handler.postDelayed(r, 1500);
+    }
+
+    private boolean checkIfFirebaseUser(){
+        mAuth = FirebaseAuth.getInstance();
+        firebaseUser = mAuth.getCurrentUser();
+
+        if (firebaseUser == null){
+            return false;
+        }
+
+        return true;
     }
 }

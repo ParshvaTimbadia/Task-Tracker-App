@@ -17,9 +17,12 @@
         tools:targetApi="31">
         <activity
             android:name=".DashboardActivity"
+            android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar"
+        android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
             android:name=".SignUpActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".SplashActivity"
@@ -29,12 +32,12 @@
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
     </application>
 
