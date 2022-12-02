@@ -4,6 +4,8 @@
     package="edu.northeastern.numad22fa_team51_project">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -16,14 +18,24 @@
         android:theme="@style/Theme.NUMAD22Fa_Team51_Project"
         tools:targetApi="31">
         <activity
-            android:name=".DashboardActivity"
+            android:name=".CreateBoardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar"
-        android:configChanges="orientation|screenSize"
-            android:exported="false" />
+            >
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".DashboardActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar" />
         <activity
             android:name=".SignUpActivity"
-            android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -32,13 +44,14 @@
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

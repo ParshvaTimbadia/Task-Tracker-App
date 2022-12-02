@@ -9,12 +9,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -23,6 +23,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     private DrawerLayout menuDrawer;
     private NavigationView navView;
     private FirebaseAuth mAuth;
+    private FloatingActionButton createBoard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,16 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
         setupCustomActionBar();
         navView.setNavigationItemSelectedListener(this);
+
+
+        createBoard = findViewById(R.id.create_board);
+        createBoard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(DashboardActivity.this, CreateBoardActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void setupCustomActionBar(){
