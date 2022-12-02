@@ -98,8 +98,10 @@ public class SignUpActivity extends AppCompatActivity {
                         hMap.put("user_name", userName);
                         hMap.put("user_email", userEmail);
                         hMap.put("user_passwd", userPasswd);
+                        hMap.put("user_img", " ");
+                        hMap.put("user_mobile", "0");
 
-                        reference.child("Users").push().setValue(hMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        reference.child("Users").child(uid).setValue(hMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){

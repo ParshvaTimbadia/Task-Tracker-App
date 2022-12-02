@@ -16,9 +16,13 @@
         android:theme="@style/Theme.NUMAD22Fa_Team51_Project"
         tools:targetApi="31">
         <activity
+            android:name=".MyProfileActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name=".DashboardActivity"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar"
-        android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
             android:name=".SignUpActivity"

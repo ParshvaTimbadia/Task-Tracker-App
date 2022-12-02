@@ -1,19 +1,25 @@
 package edu.northeastern.numad22fa_team51_project.models;
 
-public class UserModel {
+import java.io.Serializable;
+
+public class UserModel implements Serializable {
     private String user_email;
     private String user_id;
     private String user_name;
     private String user_passwd;
+    private String user_img;
+    private String user_mobile;
 
     public UserModel() {
     }
 
-    public UserModel(String user_email, String user_id, String user_name, String user_passwd) {
+    public UserModel(String user_email, String user_id, String user_name, String user_passwd, String user_img, String user_mobile) {
         this.user_email = user_email;
         this.user_id = user_id;
         this.user_name = user_name;
         this.user_passwd = user_passwd;
+        this.user_img = user_img;
+        this.user_mobile = user_mobile;
     }
 
     public String getUser_email() {
@@ -46,5 +52,21 @@ public class UserModel {
 
     public void setUser_passwd(String user_passwd) {
         this.user_passwd = user_passwd;
+    }
+
+    public String getUser_img() {
+        return user_img;
+    }
+
+    public void setUser_img(String user_img) {
+        this.user_img = user_img;
+    }
+
+    public String getUser_mobile() {
+        return user_mobile;
+    }
+
+    public void setUser_mobile(String user_mobile) {
+        this.user_mobile = user_mobile;
     }
 }
