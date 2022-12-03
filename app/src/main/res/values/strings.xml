@@ -7,7 +7,7 @@
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
     <string name="sign_out">Sign Out</string>
-    <string name="username">UserName</string>
+    <string name="username">User Name</string>
     <string name="register">Register</string>
     <string name="sign_up_helper_text">Enter your desired username, email and password, to set up an account</string>
     <string name="project_board_illustration">project_board_illustration</string>
@@ -16,4 +16,7 @@
     <string name="my_profile">My profile</string>
     <string name="phone">Phone</string>
     <string name="update">Update</string>
+    <string name="create_board_title">Create Board</string>
+    <string name="create">CREATE</string>
+    <string name="board_name">Board Name</string>
 </resources>

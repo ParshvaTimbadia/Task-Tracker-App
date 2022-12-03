@@ -17,8 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +43,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     private FirebaseUser firebaseUser;
     private DatabaseReference databaseReference;
     protected UserModel user_obj;
+    private FloatingActionButton createBoard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,16 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         setupCustomActionBar();
         getFirebaseUserData();
         navView.setNavigationItemSelectedListener(this);
+
+
+        createBoard = findViewById(R.id.create_board);
+        createBoard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(DashboardActivity.this, CreateBoardActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void getFirebaseUserData(){

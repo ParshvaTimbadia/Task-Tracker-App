@@ -4,6 +4,8 @@
     package="edu.northeastern.numad22fa_team51_project">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +17,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NUMAD22Fa_Team51_Project"
         tools:targetApi="31">
+        <activity
+            android:name=".CreateBoardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar"
+            >
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".MyProfileActivity"
             android:screenOrientation="portrait"
