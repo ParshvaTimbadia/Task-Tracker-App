@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -29,9 +31,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 
+import edu.northeastern.numad22fa_team51_project.adapters.GroupItemsAdapter;
+import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.UserModel;
 
 public class DashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -43,7 +50,10 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     private FirebaseUser firebaseUser;
     private DatabaseReference databaseReference;
     protected UserModel user_obj;
+    private RecyclerView groupListRV;
+    private TextView rvtextVeiw;
     private FloatingActionButton createBoard;
+    private GroupItemsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +62,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
         menuDrawer = (DrawerLayout) findViewById(R.id.profile_details_drawer_layout);
         navView = (NavigationView) findViewById(R.id.navigation_view);
-
+        groupListRV = findViewById(R.id.rv_boards_list);
+        rvtextVeiw = findViewById(R.id.tv_no_boards_available);
         setupCustomActionBar();
         getFirebaseUserData();
         navView.setNavigationItemSelectedListener(this);
@@ -62,10 +73,18 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         createBoard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getFirebaseUserData();
                 Intent intent = new Intent(DashboardActivity.this, CreateBoardActivity.class);
+                intent.putExtra(Constants.NAME, user_obj.getUser_id());
                 startActivity(intent);
             }
         });
+
+        if (Constants.refersh) {
+            Log.d("Constant-Refresh", Constants.refersh.toString());
+            getGroupsList();
+            Constants.refersh = Boolean.FALSE;
+        }
     }
 
     private void getFirebaseUserData(){
@@ -112,8 +131,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
     @Override
     public void onBackPressed() {
-//        super.onBackPressed();
-
         if (menuDrawer.isDrawerOpen(GravityCompat.START)){
             menuDrawer.closeDrawer(GravityCompat.START);
         }else{
@@ -151,4 +168,83 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
         return false;
     }
+
+
+    private void populateGroupsListToUI(ArrayList<BoardSerializable> groupList){
+        if (groupList.size() > 0){
+            groupListRV.setVisibility(View.VISIBLE);
+            rvtextVeiw.setVisibility(View.GONE);
+            groupListRV.setLayoutManager(new LinearLayoutManager(this));
+            groupListRV.setHasFixedSize(true);
+            adapter = new GroupItemsAdapter(this, groupList);
+            groupListRV.setAdapter(adapter);
+            adapter.setOnClickListener(new GroupItemsAdapter.onClickListener() {
+                @Override
+                public void onClick(int position, BoardSerializable model) {
+                    Intent intent = new Intent(DashboardActivity.this, TaskListActivity.class);
+                    intent.putExtra(Constants.DOCUMENT_ID, model.getDocumentId());
+                    startActivity(intent);
+                }
+            });
+        }else{
+            groupListRV.setVisibility(View.GONE);
+            rvtextVeiw.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
+    private void getGroupsList() {
+        databaseReference = FirebaseDatabase.getInstance().getReference("boards");
+        ArrayList<BoardSerializable> groupList = new ArrayList<>();
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                // Use the values to update the UI
+                for (DataSnapshot datasnapShot : snapshot.getChildren()) {
+
+                    String documentId = datasnapShot.getKey();
+
+                    DataSnapshot board_name_snapshot = datasnapShot.child("board_name");
+                    String board_name = board_name_snapshot.getValue().toString();
+
+                    DataSnapshot assignedToSnapShot = datasnapShot.child("group_assingedTo");
+                    String assignTo = assignedToSnapShot.getValue().toString();
+                    String[] assignToList = assignTo.split(",");
+                    ArrayList<String> assignToArrayList = new ArrayList<String>(
+                            Arrays.asList(assignToList));
+
+
+                    DataSnapshot group_image_snapshot = datasnapShot.child("group_image");
+                    String group_image = group_image_snapshot.getValue().toString();
+
+
+                    DataSnapshot group_creadedBy_snapshot = datasnapShot.child("group_creadedBy");
+                    String group_creadedBy = group_creadedBy_snapshot.getValue().toString();
+
+                    BoardSerializable group = new BoardSerializable(board_name, group_image, group_creadedBy, assignToArrayList, documentId);
+
+                    if (assignToArrayList.contains(firebaseUser.getUid())) {
+                        groupList.add(group);
+                    }
+                }
+                populateGroupsListToUI(groupList);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("DashboardActivity", "Error while creating the board", databaseError.toException());
+            }
+        };
+
+        databaseReference.addValueEventListener(postListener);
+    }
+
+
 }
