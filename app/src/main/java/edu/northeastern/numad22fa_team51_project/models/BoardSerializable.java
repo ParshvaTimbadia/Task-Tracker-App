@@ -7,16 +7,16 @@ public class BoardSerializable implements Serializable {
 
     private String group_name = "";
     private String group_image = "";
-    private String group_creadedBy = "";
-    private ArrayList<String> group_assingedTo = new ArrayList<>();
+    private String group_createdBy = "";
+    private ArrayList<String> group_assignedTo = new ArrayList<>();
     private String documentId = "";
     public ArrayList<Task> taskList = new ArrayList<>();
 
-    public BoardSerializable(String group_name, String group_image, String group_creadedBy, ArrayList<String> group_assingedTo, String documentId) {
+    public BoardSerializable(String group_name, String group_image, String group_createdBy, ArrayList<String> group_assignedTo, String documentId) {
         this.group_name = group_name;
         this.group_image = group_image;
-        this.group_creadedBy = group_creadedBy;
-        this.group_assingedTo = group_assingedTo;
+        this.group_createdBy = group_createdBy;
+        this.group_assignedTo = group_assignedTo;
         this.documentId = documentId;
     }
 
@@ -44,19 +44,19 @@ public class BoardSerializable implements Serializable {
         this.group_image = group_image;
     }
 
-    public String getGroup_creadedBy() {
-        return group_creadedBy;
+    public String getGroup_createdBy() {
+        return group_createdBy;
     }
 
-    public void setGroup_creadedBy(String group_creadedBy) {
-        this.group_creadedBy = group_creadedBy;
+    public void setGroup_createdBy(String group_createdBy) {
+        this.group_createdBy = group_createdBy;
     }
 
-    public ArrayList<String> getGroup_assingedTo() {
-        return group_assingedTo;
+    public ArrayList<String> getGroup_assignedTo() {
+        return group_assignedTo;
     }
 
-    public void setGroup_assingedTo(ArrayList<String> group_assingedTo) {
-        this.group_assingedTo = group_assingedTo;
+    public void setGroup_assignedTo(ArrayList<String> group_assignedTo) {
+        this.group_assignedTo = group_assignedTo;
     }
 }

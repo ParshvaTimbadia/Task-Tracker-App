@@ -80,11 +80,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
             }
         });
 
-        if (Constants.refersh) {
-            Log.d("Constant-Refresh", Constants.refersh.toString());
-            getGroupsList();
-            Constants.refersh = Boolean.FALSE;
-        }
     }
 
     private void getFirebaseUserData(){
@@ -213,7 +208,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                     DataSnapshot board_name_snapshot = datasnapShot.child("board_name");
                     String board_name = board_name_snapshot.getValue().toString();
 
-                    DataSnapshot assignedToSnapShot = datasnapShot.child("group_assingedTo");
+                    DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
                     String assignTo = assignedToSnapShot.getValue().toString();
                     String[] assignToList = assignTo.split(",");
                     ArrayList<String> assignToArrayList = new ArrayList<String>(
@@ -224,10 +219,10 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                     String group_image = group_image_snapshot.getValue().toString();
 
 
-                    DataSnapshot group_creadedBy_snapshot = datasnapShot.child("group_creadedBy");
-                    String group_creadedBy = group_creadedBy_snapshot.getValue().toString();
+                    DataSnapshot group_createdBy_snapshot = datasnapShot.child("group_createdBy");
+                    String group_createdBy = group_createdBy_snapshot.getValue().toString();
 
-                    BoardSerializable group = new BoardSerializable(board_name, group_image, group_creadedBy, assignToArrayList, documentId);
+                    BoardSerializable group = new BoardSerializable(board_name, group_image, group_createdBy, assignToArrayList, documentId);
 
                     if (assignToArrayList.contains(firebaseUser.getUid())) {
                         groupList.add(group);
@@ -247,4 +242,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getGroupsList();
+    }
 }

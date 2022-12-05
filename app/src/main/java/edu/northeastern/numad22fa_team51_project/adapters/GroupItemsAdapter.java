@@ -1,23 +1,15 @@
 package edu.northeastern.numad22fa_team51_project.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
-import androidx.appcompat.view.menu.MenuView;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.bumptech.glide.Glide;
-import org.w3c.dom.Text;
 import java.util.ArrayList;
-
 import edu.northeastern.numad22fa_team51_project.R;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 
@@ -47,13 +39,13 @@ public class GroupItemsAdapter extends RecyclerView.Adapter<GroupItemsAdapter.My
         // For group_name
         holder.groupname.setText(board.getGroup_name());
         // For created_by field
-        holder.createdBy.setText("Created by: " + board.getGroup_creadedBy());
+        holder.createdBy.setText("Created by: " + board.getGroup_createdBy());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (onClickListener!=null){
-                    onClickListener.onClick(position, board);
+                    onClickListener.onClick(holder.getAdapterPosition(), board);
                 }
             }
         });

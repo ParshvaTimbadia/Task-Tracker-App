@@ -162,8 +162,8 @@ public class CreateBoardActivity extends AppCompatActivity {
         HashMap<String, String> hMap = new HashMap<>();
         hMap.put("board_name", groupName.getText().toString());
         hMap.put("group_image", boardImageURL);
-        hMap.put("group_creadedBy", user_id);
-        hMap.put("group_assingedTo", assignedUserList);
+        hMap.put("group_createdBy", user_id);
+        hMap.put("group_assignedTo", assignedUserList);
 
         FirebaseUser firebaseUser = auth.getCurrentUser();
         reference.child(Constants.BOARDS).push().setValue(hMap)

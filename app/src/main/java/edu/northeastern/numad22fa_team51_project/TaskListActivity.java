@@ -70,7 +70,7 @@ public class TaskListActivity extends AppCompatActivity {
                 DataSnapshot board_name_snapshot = datasnapShot.child("board_name");
                 String board_name = board_name_snapshot.getValue().toString();
 
-                DataSnapshot assignedToSnapShot = datasnapShot.child("group_assingedTo");
+                DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
                 String assignTo = assignedToSnapShot.getValue().toString();
                 String[] assignToList = assignTo.split(",");
                 ArrayList<String> assignToArrayList = new ArrayList<String>(
@@ -79,7 +79,7 @@ public class TaskListActivity extends AppCompatActivity {
                 DataSnapshot group_image_snapshot = datasnapShot.child("group_image");
                 String group_image = group_image_snapshot.getValue().toString();
 
-                DataSnapshot group_creadedBy_snapshot = datasnapShot.child("group_creadedBy");
+                DataSnapshot group_creadedBy_snapshot = datasnapShot.child("group_createdBy");
                 String group_creadedBy = group_creadedBy_snapshot.getValue().toString();
 
                 BoardSerializable group = new BoardSerializable(board_name, group_image, group_creadedBy, assignToArrayList, documentId);
