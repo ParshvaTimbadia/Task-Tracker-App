@@ -52,9 +52,6 @@ public class MyProfileActivity extends AppCompatActivity {
 
         getFirebaseUserData();
 
-//        intent = getIntent(); // to avoid stale data
-//        curr_user = (UserModel) intent.getSerializableExtra("user_details");
-
         user_img = (ImageView) findViewById(R.id.my_profile_img_view);
         user_name = (EditText) findViewById(R.id.user_name_my_profile_edit_text);
         user_mobile = (EditText) findViewById(R.id.mobile_my_profile_edit_text);
@@ -77,7 +74,7 @@ public class MyProfileActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 curr_user = snapshot.getValue(UserModel.class);
 
-                //        user_img.setImageBitmap();
+                // user_img.setImageBitmap();
                 user_name.setText(curr_user.getUser_name());
 
                 if (!curr_user.getUser_mobile().equals("0")){

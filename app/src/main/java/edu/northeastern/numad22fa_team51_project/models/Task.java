@@ -1,40 +1,33 @@
 package edu.northeastern.numad22fa_team51_project.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import java.io.Serializable;
 
-public class Task implements Parcelable {
+public class Task implements Serializable {
 
-    private String title = "";
-    private String createdBy = "";
+    private String title;
+    private String creadtedBy;
 
-    protected Task(@NonNull Parcel in) {
-        title = in.readString();
-        createdBy = in.readString();
+    public Task(String title, String creadtedBy) {
+        this.title = title;
+        this.creadtedBy = creadtedBy;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(title);
-        dest.writeString(createdBy);
+    public String getTitle() {
+        return title;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public static final Creator<Task> CREATOR = new Creator<Task>() {
-        @Override
-        public Task createFromParcel(Parcel in) {
-            return new Task(in);
-        }
+    public String getCreadtedBy() {
+        return creadtedBy;
+    }
 
-        @Override
-        public Task[] newArray(int size) {
-            return new Task[size];
-        }
-    };
+    public void setCreadtedBy(String creadtedBy) {
+        this.creadtedBy = creadtedBy;
+    }
+
+
 }

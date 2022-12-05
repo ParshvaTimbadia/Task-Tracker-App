@@ -11,10 +11,14 @@ import androidx.annotation.NonNull;
 public class Constants {
 
     // Including Firebase constants.
+    static final String BOARDS = "boards";
     static final String NAME = "name";
     static final String DOCUMENT_ID = "documentId";
+    static final String ASSINGED_TO = "assignedTo";
     static final int STORAGE_PERMISSIONS = 1;
     static final int PICK_IMAGE_REQUEST_CODE = 2;
+    static Boolean refersh = true;
+
 
     // Opens an activity to choose an image
     public static void showImageChooser(@NonNull Activity activity){
