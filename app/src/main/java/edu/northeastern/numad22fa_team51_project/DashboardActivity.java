@@ -194,7 +194,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     }
 
     private void getGroupsList() {
-        databaseReference = FirebaseDatabase.getInstance().getReference("boards");
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS);
         ArrayList<BoardSerializable> groupList = new ArrayList<>();
 
         ValueEventListener postListener = new ValueEventListener() {

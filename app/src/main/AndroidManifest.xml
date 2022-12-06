@@ -29,6 +29,10 @@
                 />
         </activity>
         <activity
+            android:name=".CreateTaskCardActivity"
+            android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar"
+            android:exported="false" />
+        <activity
             android:name=".TaskListActivity"
             android:exported="false"
             android:screenOrientation="portrait"

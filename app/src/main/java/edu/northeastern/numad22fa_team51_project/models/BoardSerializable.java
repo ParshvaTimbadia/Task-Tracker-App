@@ -10,7 +10,7 @@ public class BoardSerializable implements Serializable {
     private String group_createdBy = "";
     private ArrayList<String> group_assignedTo = new ArrayList<>();
     private String documentId = "";
-    public ArrayList<Task> taskList = new ArrayList<>();
+    public ArrayList<TaskSerializableModel> taskSerializableList = new ArrayList<>();
 
     public BoardSerializable(String group_name, String group_image, String group_createdBy, ArrayList<String> group_assignedTo, String documentId) {
         this.group_name = group_name;
