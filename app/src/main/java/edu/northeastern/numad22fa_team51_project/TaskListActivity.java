@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -11,9 +12,12 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,17 +26,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import edu.northeastern.numad22fa_team51_project.adapters.TaskListItemAdapter;
+import edu.northeastern.numad22fa_team51_project.adapters.TaskListItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
-import edu.northeastern.numad22fa_team51_project.models.Task;
+import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
 
 public class TaskListActivity extends AppCompatActivity {
 
     private Intent intent;
     String documentId = "";
     private Dialog progressDialog;
+    TaskListItemsAdapter taskAdapter;
     private DatabaseReference databaseReference;
-    RecyclerView taskListRv;
+    private FloatingActionButton createTaskCard;
+    RecyclerView taskCardRcw;
+    View parentLayout;
+    ArrayList<TaskSerializableModel> arrTaskCards;
+    TextView cardRcwText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,38 +52,84 @@ public class TaskListActivity extends AppCompatActivity {
             documentId = intent.getStringExtra(Constants.DOCUMENT_ID);
         }
         showProgressDialog("Please wait");
-        taskListRv = findViewById(R.id.rv_task_list);
+
+        taskCardRcw = findViewById(R.id.rv_task_list);
+        taskCardRcw.setLayoutManager(new LinearLayoutManager(this));
+        parentLayout = findViewById(R.id.card_create_root_layout);
+        cardRcwText = findViewById(R.id.tv_no_tasks_available);
+
+        //TODO: delete on swipe etc, to be decided
+//        new ItemTouchHelper(ith).attachToRecyclerView(taskCardRcw);
+
+        createTaskCard = findViewById(R.id.create_task_card);
         getBoardDetails();
     }
 
-    private void boardDetails(BoardSerializable board){
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        populateRecyclerViewWithTaskCards();
+    }
+
+    public void populateRecyclerViewWithTaskCards(){
+        arrTaskCards = new ArrayList<>();
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS);
+
+        ValueEventListener postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                snapshot = snapshot.child(documentId);
+                for (DataSnapshot datasnapShot : snapshot.getChildren()) {
+
+                    String board_id = datasnapShot.getKey();
+                    String card_name = (String) datasnapShot.child("card_name").getValue();
+                    String card_notes = (String) datasnapShot.child("card_notes").getValue();
+
+                    TaskSerializableModel task = new TaskSerializableModel(board_id, card_name, card_notes, "", new ArrayList<>(), "");
+                    arrTaskCards.add(task);
+                }
+
+                if (arrTaskCards.size() > 0){
+                    cardRcwText.setVisibility(View.GONE);
+                    taskAdapter = new TaskListItemsAdapter(TaskListActivity.this, arrTaskCards);
+                    taskCardRcw.setAdapter(taskAdapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(TaskListActivity.this, "Failed to fetch task details, try again later!", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        databaseReference.addValueEventListener(postListener);
+        }
+
+    public void addCardToBoard(View view){
+        Intent intent = new Intent(TaskListActivity.this, CreateTaskCardActivity.class);
+        intent.putExtra(Constants.DOCUMENT_ID, documentId);
+        startActivity(intent);
+    }
+
+    private void fetchBoardDetails(BoardSerializable board){
         progressDialog.dismiss();
         setupActionBar(board.getGroup_name());
-        Task task1 = new Task("Add List", "");
-
-        board.taskList.add(task1);
-        taskListRv.setLayoutManager(new LinearLayoutManager(TaskListActivity.this, LinearLayoutManager.HORIZONTAL, false));
-        taskListRv.setHasFixedSize(true);
-
-        TaskListItemAdapter adapter = new TaskListItemAdapter(this, board.taskList);
-        taskListRv.setAdapter(adapter);
-
     }
 
     private void getBoardDetails(){
-        databaseReference = FirebaseDatabase.getInstance().getReference("boards").child(documentId);
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS).child(documentId);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot datasnapShot) {
-                // TODO: Get Board Details
+
                 DataSnapshot board_name_snapshot = datasnapShot.child("board_name");
                 String board_name = board_name_snapshot.getValue().toString();
 
                 DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
                 String assignTo = assignedToSnapShot.getValue().toString();
                 String[] assignToList = assignTo.split(",");
-                ArrayList<String> assignToArrayList = new ArrayList<String>(
-                        Arrays.asList(assignToList));
+                ArrayList<String> assignToArrayList = new ArrayList<String>(Arrays.asList(assignToList));
 
                 DataSnapshot group_image_snapshot = datasnapShot.child("group_image");
                 String group_image = group_image_snapshot.getValue().toString();
@@ -83,12 +138,12 @@ public class TaskListActivity extends AppCompatActivity {
                 String group_creadedBy = group_creadedBy_snapshot.getValue().toString();
 
                 BoardSerializable group = new BoardSerializable(board_name, group_image, group_creadedBy, assignToArrayList, documentId);
-                boardDetails(group);
+                fetchBoardDetails(group);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(TaskListActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TaskListActivity.this, "Failed to fetch board details, try again later!", Toast.LENGTH_SHORT).show();
             }
         });
     }

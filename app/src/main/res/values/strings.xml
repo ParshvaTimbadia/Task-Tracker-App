@@ -19,4 +19,10 @@
     <string name="create_board_title">Create Board</string>
     <string name="create">Create</string>
     <string name="board_name">Board Name</string>
+    <string name="card_name">Card Name</string>
+    <string name="add_card">Add Card</string>
+    <string name="no_tasks_created">No Tasks Created</string>
+    <string name="notes">Notes</string>
+    <string name="pick_date">Pick Date</string>
+    <string name="due_date">Due Date</string>
 </resources>
