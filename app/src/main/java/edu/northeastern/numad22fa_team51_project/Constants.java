@@ -17,7 +17,8 @@ public class Constants {
     static final String ASSINGED_TO = "assignedTo";
     static final int STORAGE_PERMISSIONS = 1;
     static final int PICK_IMAGE_REQUEST_CODE = 2;
-    static Boolean refersh = true;
+    static final String BOARD_DETAILS = "board_details";
+
 
 
     // Opens an activity to choose an image

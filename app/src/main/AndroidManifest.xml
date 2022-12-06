@@ -18,10 +18,21 @@
         android:theme="@style/Theme.NUMAD22Fa_Team51_Project"
         tools:targetApi="31">
         <activity
-            android:name=".TaskListActivity"
+            android:name=".MembersActivity"
+            android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar"
-            android:exported="false">
+            android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar">
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value=""
+                />
+        </activity>
+        <activity
+            android:name=".TaskListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

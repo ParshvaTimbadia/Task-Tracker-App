@@ -67,7 +67,7 @@ public class GroupItemsAdapter extends RecyclerView.Adapter<GroupItemsAdapter.My
     }
 
 
-    public class MyViewHolder extends RecyclerView.ViewHolder{
+    public static class MyViewHolder extends RecyclerView.ViewHolder{
 
         public ImageView display;
         public TextView groupname;
