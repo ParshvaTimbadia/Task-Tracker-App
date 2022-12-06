@@ -3,7 +3,12 @@ package edu.northeastern.numad22fa_team51_project;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
@@ -15,6 +20,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
                         Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                        setAlarm();
                         startActivity(new Intent(MainActivity.this, DashboardActivity.class));
                         finish();
                     }else{
@@ -82,5 +90,30 @@ public class MainActivity extends AppCompatActivity {
     public void signUpFlow(View view){
         Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
         startActivity(intent);
+    }
+
+    //Referred https://developer.android.com/develop/ui/views/notifications/build-notification#java
+    //Pair programming: Divit, Parshva, Shivani
+    public void setAlarm(){
+        createNotificationChannel();
+        Intent intent=new Intent(MainActivity.this,NotificationAlarm.class);
+        PendingIntent pIntent=PendingIntent.getBroadcast(MainActivity.this,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarm=(AlarmManager) getSystemService(ALARM_SERVICE);
+        Calendar cal=Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY,8);
+        cal.set(Calendar.MINUTE,1);
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pIntent);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Check out your tasks";
+            String description = "Check the to-do tasks inside the app";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("task_notification", name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }
