@@ -185,11 +185,16 @@ public class MembersActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot datasnapShot) {
+                Boolean found = false;
                 for (DataSnapshot snapshot : datasnapShot.getChildren()) {
                     String email = snapshot.child("user_email").getValue().toString();
                     if (email.equals(newMemberEmail)){
+                        found = true;
                         addNewMemberToBoard(snapshot.child("user_id").getValue().toString());
                     }
+                }
+                if (!found) {
+                    Toast.makeText(MembersActivity.this, "User Email not registered. Please check your email again", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
