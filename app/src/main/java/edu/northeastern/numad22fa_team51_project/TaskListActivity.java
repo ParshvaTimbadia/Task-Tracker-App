@@ -11,6 +11,8 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +35,7 @@ public class TaskListActivity extends AppCompatActivity {
     private Dialog progressDialog;
     private DatabaseReference databaseReference;
     RecyclerView taskListRv;
+    private String boardDetail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,9 @@ public class TaskListActivity extends AppCompatActivity {
     }
 
     private void boardDetails(BoardSerializable board){
+
+        boardDetail = board.getDocumentId();
+
         progressDialog.dismiss();
         setupActionBar(board.getGroup_name());
         Task task1 = new Task("Add List", "");
@@ -117,5 +123,22 @@ public class TaskListActivity extends AppCompatActivity {
         TextView progressTV = (TextView) progressDialog.findViewById(R.id.tv_progress_text);
         progressTV.setText(text);
         progressDialog.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_members, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_members){
+            Intent intent = new Intent(TaskListActivity.this, MembersActivity.class);
+            intent.putExtra(Constants.BOARD_DETAILS, boardDetail);
+            startActivity(intent);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
