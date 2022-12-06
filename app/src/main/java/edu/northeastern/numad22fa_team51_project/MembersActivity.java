@@ -107,7 +107,7 @@ public class MembersActivity extends AppCompatActivity {
     }
 
     public void getBoardMembersAssignedDetails(String groupId){
-        databaseReference = FirebaseDatabase.getInstance().getReference("boards").child(groupId);
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS).child(groupId);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot datasnapShot) {
@@ -206,7 +206,7 @@ public class MembersActivity extends AppCompatActivity {
     }
 
     private void addNewMemberToBoard(String user_id) {
-        databaseReference = FirebaseDatabase.getInstance().getReference("boards").child(groupId);
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS).child(groupId);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot datasnapShot) {

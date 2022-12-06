@@ -68,7 +68,7 @@ public class TaskListActivity extends AppCompatActivity {
         createTaskCard = findViewById(R.id.create_task_card);
         getBoardDetails();
     }
-    
+
 
     @Override
     protected void onResume() {
