@@ -15,10 +15,12 @@ import com.google.api.Distribution;
 import java.util.ArrayList;
 
 import edu.northeastern.numad22fa_team51_project.R;
+import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
 
 public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdapter.TaskCardViewHolder> {
 
+    private TaskListItemsAdapter.onClickListener onClickListener;
     private Context context;
     private ArrayList<TaskSerializableModel> arrCards;
 
@@ -37,9 +39,20 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
 
     @Override
     public void onBindViewHolder(@NonNull TaskCardViewHolder holder, int position) {
+        TaskSerializableModel task = arrCards.get(position);
+
         holder.card_name.setText(arrCards.get(position).getCard_name());
          // TODO: array shown as string, need to change as needed!!
         holder.members_name.setText(arrCards.get(position).getAssignedTo().toString());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (onClickListener!=null){
+                    onClickListener.onClick(holder.getAdapterPosition(), task);
+                }
+            }
+        });
 
         View parentLayout = (View) ((Activity) context).findViewById(R.id.card_create_root_layout);
     }
@@ -47,6 +60,14 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
     @Override
     public int getItemCount() {
         return arrCards.size();
+    }
+
+    public void setOnClickListener(TaskListItemsAdapter.onClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+    }
+
+    public interface onClickListener{
+        void onClick(int position, TaskSerializableModel model);
     }
 
     public static class TaskCardViewHolder extends RecyclerView.ViewHolder{

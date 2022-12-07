@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import edu.northeastern.numad22fa_team51_project.adapters.GroupItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.adapters.TaskListItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
@@ -99,6 +100,13 @@ public class TaskListActivity extends AppCompatActivity {
                     cardRcwText.setVisibility(View.GONE);
                     taskAdapter = new TaskListItemsAdapter(TaskListActivity.this, arrTaskCards);
                     taskCardRcw.setAdapter(taskAdapter);
+                    taskAdapter.setOnClickListener(new TaskListItemsAdapter.onClickListener() {
+                        @Override
+                        public void onClick(int position, TaskSerializableModel model) {
+                            Intent intent = new Intent(TaskListActivity.this, CardDetailsActivity.class);
+                            startActivity(intent);
+                        }
+                    });
                 }
             }
 
