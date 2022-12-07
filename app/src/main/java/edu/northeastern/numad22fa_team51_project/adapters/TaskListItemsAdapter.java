@@ -1,6 +1,7 @@
 package edu.northeastern.numad22fa_team51_project.adapters;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,9 @@ import com.google.api.Distribution;
 
 import java.util.ArrayList;
 
+import edu.northeastern.numad22fa_team51_project.Constants;
 import edu.northeastern.numad22fa_team51_project.R;
+import edu.northeastern.numad22fa_team51_project.UpdateCardDetailsActivity;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
 
@@ -41,16 +44,15 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
     public void onBindViewHolder(@NonNull TaskCardViewHolder holder, int position) {
         TaskSerializableModel task = arrCards.get(position);
 
-        holder.card_name.setText(arrCards.get(position).getCard_name());
-         // TODO: array shown as string, need to change as needed!!
-        holder.members_name.setText(arrCards.get(position).getAssignedTo().toString());
+        holder.card_name.setText(task.getCard_name());
+        holder.members_name.setText(task.getAssignedTo().toString());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (onClickListener!=null){
-                    onClickListener.onClick(holder.getAdapterPosition(), task);
-                }
+                Intent intent = new Intent(context, UpdateCardDetailsActivity.class);
+                intent.putExtra(Constants.TASK_DETAILS, task);
+                context.startActivity(intent);
             }
         });
 

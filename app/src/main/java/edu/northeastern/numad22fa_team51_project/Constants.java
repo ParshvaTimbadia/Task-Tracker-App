@@ -19,6 +19,7 @@ public class Constants {
     static final int STORAGE_PERMISSIONS = 1;
     static final int PICK_IMAGE_REQUEST_CODE = 2;
     static final String BOARD_DETAILS = "board_details";
+    public static final String TASK_DETAILS = "task_details";
 
 
 

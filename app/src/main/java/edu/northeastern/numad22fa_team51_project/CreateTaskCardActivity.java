@@ -73,6 +73,7 @@ public class CreateTaskCardActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                         String month_str, date_str, year_str;
+                        // TODO:: donot allow dates less than today and then add the same to update card details activity as well
                         if ((i1 + 1) < 10){
                             month_str = '0' + String.valueOf(i1 + 1);
                         }else{
@@ -97,12 +98,9 @@ public class CreateTaskCardActivity extends AppCompatActivity {
 
     public void addTaskCardToBoard(View view){
         // Add more field checks here if needed
-        Log.d("CreateTask", tv_due_date.getText().toString());
         if(et_card_name.getText() == null || et_card_name.getText().toString().equals("")){
             Toast.makeText(CreateTaskCardActivity.this, "Please enter a name for the task", Toast.LENGTH_SHORT).show();
-        }else if (tv_due_date.getText() == null || tv_due_date.getText().toString().equals("")){
-            Toast.makeText(CreateTaskCardActivity.this, "Please enter a due date for the task", Toast.LENGTH_SHORT).show();
-        } else{
+        }else{
             showProgressDialog("Adding Card");
             createCard();
         }
@@ -113,8 +111,24 @@ public class CreateTaskCardActivity extends AppCompatActivity {
         HashMap<String, String> hMap = new HashMap<>();
         hMap.put("board_id", documentId);
         hMap.put("card_name", et_card_name.getText().toString());
-        hMap.put("card_notes", et_card_notes.getText().toString());
-        hMap.put("DueDate", tv_due_date.getText().toString());
+
+        if (!et_card_notes.getText().toString().equals("") || et_card_notes.getText() != null){
+            hMap.put("card_notes", et_card_notes.getText().toString());
+        }else{
+            hMap.put("card_notes", "");
+        }
+
+        hMap.put("createdBy", "");
+        hMap.put("memberList", "");
+
+        if (!tv_due_date.getText().toString().equals("")){
+            hMap.put("DueDate", tv_due_date.getText().toString());
+        }else{
+            hMap.put("DueDate", "");
+        }
+
+        hMap.put("points", "0");
+        hMap.put("isComplete", "false");
 
         databaseReference.child(Constants.TASKS).child(documentId).push().setValue(hMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

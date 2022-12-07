@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -12,9 +11,9 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +27,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import edu.northeastern.numad22fa_team51_project.adapters.GroupItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.adapters.TaskListItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
@@ -86,13 +84,15 @@ public class TaskListActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 snapshot = snapshot.child(documentId);
+                String board_id = documentId;
                 for (DataSnapshot datasnapShot : snapshot.getChildren()) {
 
-                    String board_id = datasnapShot.getKey();
+                    String card_id = datasnapShot.getRef().getKey();
                     String card_name = (String) datasnapShot.child("card_name").getValue();
                     String card_notes = (String) datasnapShot.child("card_notes").getValue();
+                    //TODO: get other fields from Firebase and then make task model obj below
 
-                    TaskSerializableModel task = new TaskSerializableModel(board_id, card_name, card_notes, "", new ArrayList<>(), "");
+                    TaskSerializableModel task = new TaskSerializableModel(card_id, board_id, card_name, card_notes, "", new ArrayList<>(), "", "", "0", "false");
                     arrTaskCards.add(task);
                 }
 
@@ -100,13 +100,6 @@ public class TaskListActivity extends AppCompatActivity {
                     cardRcwText.setVisibility(View.GONE);
                     taskAdapter = new TaskListItemsAdapter(TaskListActivity.this, arrTaskCards);
                     taskCardRcw.setAdapter(taskAdapter);
-                    taskAdapter.setOnClickListener(new TaskListItemsAdapter.onClickListener() {
-                        @Override
-                        public void onClick(int position, TaskSerializableModel model) {
-                            Intent intent = new Intent(TaskListActivity.this, CardDetailsActivity.class);
-                            startActivity(intent);
-                        }
-                    });
                 }
             }
 
