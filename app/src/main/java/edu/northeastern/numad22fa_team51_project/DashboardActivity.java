@@ -18,6 +18,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -94,6 +96,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                 user_obj = snapshot.getValue(UserModel.class);
                 navUserTextView = (TextView) findViewById(R.id.username_nav_header_text_view);
                 navUserTextView.setText(user_obj.getUser_name());
+                ImageView temp = (ImageView) findViewById(R.id.profile_img_view);
+                Picasso.get().load(user_obj.getUser_img()).into(temp);
+
                 // set profile image here if needed
             }
 
