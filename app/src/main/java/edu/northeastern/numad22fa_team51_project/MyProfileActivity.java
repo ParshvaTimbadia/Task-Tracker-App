@@ -137,7 +137,9 @@ public class MyProfileActivity extends AppCompatActivity {
                     user_mobile.setText(curr_user.getUser_mobile());
                 }
 
-                Picasso.get().load(curr_user.getUser_img()).into(user_img);
+                if (!curr_user.getUser_img().isEmpty() && !curr_user.getUser_img().equals(" ")) {
+                    Picasso.get().load(curr_user.getUser_img()).into(user_img);
+                }
 
                 user_email.setText(curr_user.getUser_email());
                 user_pass.setText(curr_user.getUser_passwd());

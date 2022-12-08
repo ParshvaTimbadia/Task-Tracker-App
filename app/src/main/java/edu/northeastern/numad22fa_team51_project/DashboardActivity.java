@@ -97,9 +97,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                 navUserTextView = (TextView) findViewById(R.id.username_nav_header_text_view);
                 navUserTextView.setText(user_obj.getUser_name());
                 ImageView temp = (ImageView) findViewById(R.id.profile_img_view);
-                Picasso.get().load(user_obj.getUser_img()).into(temp);
-
-                // set profile image here if needed
+                if (!user_obj.getUser_img().isEmpty() && !user_obj.getUser_img().equals(" ")) {
+                    Picasso.get().load(user_obj.getUser_img()).into(temp);
+                }
             }
 
             @Override
