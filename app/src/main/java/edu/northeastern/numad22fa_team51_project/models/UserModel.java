@@ -9,10 +9,10 @@ public class UserModel implements Serializable {
     private String user_passwd;
     private String user_img;
     private String user_mobile;
+    private Boolean selected = false;
 
     public UserModel() {
     }
-
     public UserModel(String user_email, String user_id, String user_name, String user_passwd, String user_img, String user_mobile) {
         this.user_email = user_email;
         this.user_id = user_id;
@@ -52,6 +52,14 @@ public class UserModel implements Serializable {
 
     public void setUser_passwd(String user_passwd) {
         this.user_passwd = user_passwd;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 
     public String getUser_img() {

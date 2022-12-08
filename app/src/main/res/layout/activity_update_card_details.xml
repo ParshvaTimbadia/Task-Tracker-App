@@ -79,6 +79,14 @@
                     android:textColor="@color/secondary_text_color"
                     android:textSize="14sp" />
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_selected_members_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
                 <TextView
                     android:id="@+id/tv_update_select_members"
                     android:layout_width="match_parent"

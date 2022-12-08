@@ -12,6 +12,7 @@ public class Constants {
 
     // Including Firebase constants.
     static final String BOARDS = "Boards";
+    static final String USERS = "Users";
     static final String NAME = "name";
     static final String TASKS = "Tasks";
     static final String DOCUMENT_ID = "documentId";
@@ -19,8 +20,10 @@ public class Constants {
     static final int STORAGE_PERMISSIONS = 1;
     static final int PICK_IMAGE_REQUEST_CODE = 2;
     static final String BOARD_DETAILS = "board_details";
+    static final String BOARD_MEMBERS_LIST = "board_members_list";
     public static final String TASK_DETAILS = "task_details";
-
+    public static final String SELECT = "Select";
+    public static final String UNSELECT = "Unselect";
 
 
     // Opens an activity to choose an image

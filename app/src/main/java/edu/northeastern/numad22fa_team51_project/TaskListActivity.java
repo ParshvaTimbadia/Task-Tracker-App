@@ -30,6 +30,7 @@ import java.util.Arrays;
 import edu.northeastern.numad22fa_team51_project.adapters.TaskListItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
+import edu.northeastern.numad22fa_team51_project.models.UserModel;
 
 public class TaskListActivity extends AppCompatActivity {
 
@@ -45,6 +46,7 @@ public class TaskListActivity extends AppCompatActivity {
     View parentLayout;
     ArrayList<TaskSerializableModel> arrTaskCards;
     TextView cardRcwText;
+    private ArrayList<UserModel> assignedMembersDetailList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
