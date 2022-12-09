@@ -19,10 +19,12 @@ public class SelectedMembersListAdapter extends RecyclerView.Adapter<SelectedMem
     private SelectedMembersListAdapter.onClickListener onClickListener;
     private Context context;
     private ArrayList<SelectedMembers> list;
+    private boolean assign;
 
-    public SelectedMembersListAdapter(Context context, ArrayList<SelectedMembers> list) {
+    public SelectedMembersListAdapter(Context context, ArrayList<SelectedMembers> list, boolean assign) {
         this.context = context;
         this.list = list;
+        this.assign = assign;
     }
 
     @NonNull
@@ -34,25 +36,24 @@ public class SelectedMembersListAdapter extends RecyclerView.Adapter<SelectedMem
     @Override
     public void onBindViewHolder(@NonNull MyCardView holder, int position) {
         SelectedMembers model = list.get(position);
-        if (position == list.size() - 1){
+        if (position == list.size() - 1 && assign){
             holder.add_member_image.setVisibility(View.VISIBLE);
             holder.selected_member_image.setVisibility(View.GONE);
-        }else{
+        }else {
             holder.add_member_image.setVisibility(View.GONE);
             holder.selected_member_image.setVisibility(View.VISIBLE);
 
             Glide.with(context).load(model.getImage()).centerCrop().placeholder(R.drawable.ic_user_place_holder)
                     .into(holder.selected_member_image);
-
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (onClickListener != null){
-                        onClickListener.onClick();
-                    }
-                }
-            });
         }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (onClickListener != null){
+                    onClickListener.onClick();
+                }
+            }
+        });
     }
 
     @Override

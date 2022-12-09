@@ -11,7 +11,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,28 +25,28 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import edu.northeastern.numad22fa_team51_project.adapters.SelectedMembersListAdapter;
+import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.SelectedMembers;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
 import edu.northeastern.numad22fa_team51_project.models.UserModel;
 
 public class UpdateCardDetailsActivity extends AppCompatActivity {
 
-    private Dialog progressDialog;
+    public Dialog progressDialog;
     private Intent intent;
     private TaskSerializableModel passed_task_obj;
+    private BoardSerializable passed_board_obj;
     private TaskSerializableModel curr_task_obj;
     private DatabaseReference databaseReference;
-    ArrayList<String> taskAssignedMembersList;
     ArrayList<SelectedMembers> selectedMembersArrayList;
+    ArrayList<UserModel> passed_user_obj_arr;
     private RecyclerView rv_select_members;
     private EditText card_name;
     private EditText card_notes;
     ArrayList<UserModel> users;
-    // declare type for card members here;
     private TextView card_due_date;
     private TextView select_members;
     Dialog memberDialog;
@@ -65,32 +64,38 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         if (intent.hasExtra(Constants.TASK_DETAILS)){
             passed_task_obj = (TaskSerializableModel) intent.getSerializableExtra(Constants.TASK_DETAILS);
         }
+        if (intent.hasExtra(Constants.BOARD_OBJ)){
+            passed_board_obj = (BoardSerializable) intent.getSerializableExtra(Constants.BOARD_OBJ);
+        }
+        if (intent.hasExtra(Constants.USERS_OBJ_ARR)){
+            passed_user_obj_arr = (ArrayList<UserModel>) intent.getSerializableExtra(Constants.USERS_OBJ_ARR);
+        }
+
         card_name = findViewById(R.id.et_update_card_name);
         card_notes = findViewById(R.id.et_update_card_notes);
         card_due_date = findViewById(R.id.tv_update_due_date);
 
-        showProgressDialog("Please Wait");
-        getBoardMembersAssignedDetails();
         fetchCardDataFromFirebase();
 
         select_members.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                memberDialog = new MembersListDialog(UpdateCardDetailsActivity.this, users, "Members List") {
-                    @Override
-                    protected void onItemSelected(UserModel user, String action) {
-                    }
-                };
-                memberDialog.show();
+                memberListDialog();
             }
         });
 
-        setupSelectedMembersList();
-
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        setupSelectedMembersList();
+    }
 
     private void fetchCardDataFromFirebase(){
+        showProgressDialog("Fetching Card Details");
+
         databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS).child(passed_task_obj.getBoard_id()).child(passed_task_obj.getCard_id());
 
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -128,34 +133,40 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
             Toast.makeText(UpdateCardDetailsActivity.this, "Card name cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
-        else if (!card_name.getText().toString().equals(passed_task_obj.getCard_name())){
+        else if (!card_name.getText().toString().equals(curr_task_obj.getCard_name())){
             hMap.put("card_name", card_name.getText().toString());
         }else{
-            hMap.put("card_name", passed_task_obj.getCard_name());
+            hMap.put("card_name", curr_task_obj.getCard_name());
         }
 
-        if (!card_notes.getText().toString().equals(passed_task_obj.getCard_notes())){
+        if (!card_notes.getText().toString().equals(curr_task_obj.getCard_notes())){
             hMap.put("card_notes", card_notes.getText().toString());
         }else{
-            hMap.put("card_notes", passed_task_obj.getCard_notes());
+            hMap.put("card_notes", curr_task_obj.getCard_notes());
         }
 
-        hMap.put("createdBy", passed_task_obj.getCreatedBy());
-        hMap.put("memberList", String.valueOf(passed_task_obj.getAssignedTo()));
+        hMap.put("createdBy", passed_board_obj.getGroup_createdBy());
 
-        if (!passed_task_obj.getDueDate().equals(card_due_date)){
+        if (!curr_task_obj.getMemberList().equals(covertArrayListToString(passed_task_obj.getAssignedTo()))){
+            hMap.put("memberList", covertArrayListToString(passed_task_obj.getAssignedTo()));
+        }else{
+            hMap.put("memberList", curr_task_obj.getMemberList());
+        }
+
+        if (!curr_task_obj.getDueDate().equals(card_due_date)){
             hMap.put("DueDate", card_due_date.getText().toString());
         }else{
-            hMap.put("DueDate", passed_task_obj.getDueDate());
+            hMap.put("DueDate", curr_task_obj.getDueDate());
         }
 
         hMap.put("points", "0");
         hMap.put("isComplete", "false");
 
         //TODO: add check if user add new members!! and points!!
-        // check if user made any changes
+        // check if user made any changes add date check as well
 
-        if ((hMap.get("card_name").equals(passed_task_obj.getCard_name())) && (hMap.get("card_notes").equals(passed_task_obj.getCard_notes()))){
+        if ((hMap.get("card_name").equals(curr_task_obj.getCard_name())) && (hMap.get("card_notes").equals(curr_task_obj.getCard_notes()))
+            && (hMap.get("memberList").equals(curr_task_obj.getMemberList()))){
             Toast.makeText(UpdateCardDetailsActivity.this, "No Changes made", Toast.LENGTH_SHORT).show();
         }else{
             databaseReference.setValue(hMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -171,77 +182,43 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         }
     }
 
-
-    private void populateMembersListUI(String userUid, Boolean value){
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot datasnapShot) {
-                String user_email = datasnapShot.child("user_email").getValue().toString();
-                String user_id = datasnapShot.child("user_id").getValue().toString();
-                String user_img = datasnapShot.child("user_img").getValue().toString();
-                String user_mobile = datasnapShot.child("user_mobile").getValue().toString();
-                String user_name = datasnapShot.child("user_name").getValue().toString();
-                String user_passwd = datasnapShot.child("user_passwd").getValue().toString();
-                UserModel user = new UserModel(user_email, user_id, user_name, user_passwd, user_img, user_mobile);
-                user.setSelected(value);
-                users.add(user);
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(UpdateCardDetailsActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
-    private void membersListDialog(ArrayList<String> groupMembers){
+    private void memberListDialog(){
         ArrayList<String> taskAssignedMembers = passed_task_obj.getAssignedTo();
-        Log.d("taskAssignedMembers", taskAssignedMembers.toString());
 
         if (taskAssignedMembers.size() > 0){
-            for (String i : groupMembers){
+            for (int i = 0; i < passed_user_obj_arr.size(); i++){
                 for (String j : taskAssignedMembers){
-                    if (i.equals(j)){
-                        populateMembersListUI(i, true);
+                    if (passed_user_obj_arr.get(i).getUser_id().equals(j)){
+                        passed_user_obj_arr.get(i).setSelected(true);
                     }
                 }
             }
         }else{
-            for (String i : groupMembers) {
-                populateMembersListUI(i, false);
+            for (int i = 0; i < passed_user_obj_arr.size(); i++){
+                passed_user_obj_arr.get(i).setSelected(false);
             }
         }
-    }
 
-
-    public void getBoardMembersAssignedDetails(){
-        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS).child(passed_task_obj.getBoard_id());
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        memberDialog = new MembersListDialog(UpdateCardDetailsActivity.this, passed_user_obj_arr, "Members List") {
             @Override
-            public void onDataChange(@NonNull DataSnapshot datasnapShot) {
-                DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
-                String assignTo = assignedToSnapShot.getValue().toString();
-                String[] assignToList = assignTo.split(",");
-                ArrayList<String> assignToArrayList = new ArrayList<String>(
-                        Arrays.asList(assignToList));
+            protected void onItemSelected(UserModel user, String action) {
+                if(action.equals(Constants.SELECT)){
+                    if(!passed_task_obj.getAssignedTo().contains(user.getUser_id())){
+                        passed_task_obj.getAssignedTo().add(user.getUser_id());
+                    }
+                }else{
+                    passed_task_obj.getAssignedTo().remove(user.getUser_id());
 
-                membersListDialog(assignToArrayList);
+                    for(int i = 0; i < passed_user_obj_arr.size(); i++){
+                        if (passed_user_obj_arr.get(i).getUser_id().equals(user.getUser_id())){
+                            passed_user_obj_arr.get(i).setSelected(false);
+                        }
+                    }
+                }
+                setupSelectedMembersList();
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(UpdateCardDetailsActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }
-
-
-
-    private ArrayList<String> convertStringToArrayList(String list){
-        ArrayList<String> newList = new ArrayList<>();
-        return newList;
+        };
+        memberDialog.show();
     }
 
     @NonNull
@@ -252,7 +229,6 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         }
         return StringList;
     }
-
 
 
     private void setupActionBar(){
@@ -273,7 +249,7 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void showProgressDialog(String text){
+    public void showProgressDialog(String text){
         progressDialog = new Dialog(this);
         progressDialog.setContentView(R.layout.dialog_progress);
         TextView progressTV = (TextView) progressDialog.findViewById(R.id.tv_progress_text);
@@ -283,8 +259,39 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
 
     private void setupSelectedMembersList(){
         ArrayList<String> taskAssignedMembers = passed_task_obj.getAssignedTo();
-        for (int i = 0; i < users.size(); i++){
-            Log.d("setupSelectedMembersList-users", users.get(i).toString());
+        ArrayList<SelectedMembers> selectedMembersArrayList = new ArrayList<>();
+
+        for (int i = 0; i < passed_user_obj_arr.size(); i++){
+            for (String j : taskAssignedMembers){
+                if (passed_user_obj_arr.get(i).getUser_id().equals(j)){
+                    selectedMembersArrayList.add(new SelectedMembers(
+                            passed_user_obj_arr.get(i).getUser_id(),
+                            passed_user_obj_arr.get(i).getUser_img()
+                    ));
+                }
+            }
+        }
+
+        if (selectedMembersArrayList.size() > 0){
+            selectedMembersArrayList.add(new SelectedMembers("", ""));
+            select_members.setVisibility(View.GONE);
+            rv_select_members.setVisibility(View.VISIBLE);
+
+            rv_select_members.setLayoutManager(new GridLayoutManager(UpdateCardDetailsActivity.this, 6));
+
+            SelectedMembersListAdapter adapter = new SelectedMembersListAdapter(this, selectedMembersArrayList, true);
+
+            rv_select_members.setAdapter(adapter);
+            adapter.setOnClickListener(new SelectedMembersListAdapter.onClickListener() {
+                @Override
+                public void onClick() {
+                    memberListDialog();
+                }
+            });
+        }
+        else{
+            select_members.setVisibility(View.VISIBLE);
+            rv_select_members.setVisibility(View.GONE);
         }
     }
 }

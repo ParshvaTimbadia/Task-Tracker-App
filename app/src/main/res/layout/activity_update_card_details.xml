@@ -94,6 +94,8 @@
                     android:layout_marginTop="5dp"
                     android:padding="10dp"
                     android:text="Select Members"
+                    android:visibility="visible"
+                    tools:visibility="gone"
                     android:textColor="@color/primary_text_color"/>
 
                 <com.google.android.material.textfield.TextInputLayout

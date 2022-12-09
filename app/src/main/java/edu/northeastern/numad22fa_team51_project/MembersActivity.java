@@ -171,7 +171,6 @@ public class MembersActivity extends AppCompatActivity {
     }
 
 
-
     private void addNewMember(String newMemberEmail){
         // Check for if user is already a member.
         for (UserModel user: users){
@@ -242,4 +241,10 @@ public class MembersActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
+//    @Override
+//    public void onBackPressed() {
+//        setResult(2110);
+//        super.onBackPressed();
+//        finish();
+//    }
 }

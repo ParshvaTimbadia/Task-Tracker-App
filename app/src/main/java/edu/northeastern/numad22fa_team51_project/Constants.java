@@ -24,6 +24,8 @@ public class Constants {
     public static final String TASK_DETAILS = "task_details";
     public static final String SELECT = "Select";
     public static final String UNSELECT = "Unselect";
+    public static final String BOARD_OBJ = "board_obj";
+    public static final String USERS_OBJ_ARR = "users_obj_arr";
 
 
     // Opens an activity to choose an image
