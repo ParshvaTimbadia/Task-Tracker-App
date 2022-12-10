@@ -1,16 +1,19 @@
 package edu.northeastern.numad22fa_team51_project;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,14 +24,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.auth.User;
-
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,10 +40,15 @@ import edu.northeastern.numad22fa_team51_project.adapters.TaskListItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
 import edu.northeastern.numad22fa_team51_project.models.UserModel;
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 public class TaskListActivity extends AppCompatActivity {
 
     private Intent intent;
+    private FirebaseUser firebaseUser;
+    private FirebaseAuth mAuth;
+
+
     String documentId = "";
     private Dialog progressDialog;
     TaskListItemsAdapter taskAdapter;
@@ -61,24 +68,23 @@ public class TaskListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_task_list);
+        mAuth = FirebaseAuth.getInstance();
+        firebaseUser = mAuth.getCurrentUser();
         intent = getIntent();
         if (intent.hasExtra(Constants.DOCUMENT_ID)){
             documentId = intent.getStringExtra(Constants.DOCUMENT_ID);
         }
         showProgressDialog("Please wait");
-
         taskCardRcw = findViewById(R.id.rv_task_list);
         taskCardRcw.setLayoutManager(new LinearLayoutManager(this));
         parentLayout = findViewById(R.id.card_create_root_layout);
         cardRcwText = findViewById(R.id.tv_no_tasks_available);
-
-
         //TODO: delete on swipe etc, to be decided
 //        new ItemTouchHelper(ith).attachToRecyclerView(taskCardRcw);
-
         createTaskCard = findViewById(R.id.create_task_card);
-
         getBoardDetails();
+        new ItemTouchHelper(itemTouchHelper).attachToRecyclerView(taskCardRcw);
+
     }
 
 
@@ -86,18 +92,9 @@ public class TaskListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         getBoardUserDetailsForLookup();
-
         populateRecyclerViewWithTaskCards();
     }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (resultCode == 2110 && requestCode == 2111){
-//            getBoardUserDetailsForLookup();
-//        }
-//    }
 
     public void populateRecyclerViewWithTaskCards(){
         databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS);
@@ -169,6 +166,11 @@ public class TaskListActivity extends AppCompatActivity {
                     user_lookup_ids.add(i);
                 }
 
+                if (!user_lookup_ids.contains(firebaseUser.getUid())){
+                    finish();
+                }
+
+
                 getBoardUserObjects(user_lookup_ids);
             }
 
@@ -208,25 +210,25 @@ public class TaskListActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot datasnapShot) {
+                if (datasnapShot.hasChildren()) {
+                    DataSnapshot board_name_snapshot = datasnapShot.child("board_name");
+                    String board_name = board_name_snapshot.getValue().toString();
 
-                DataSnapshot board_name_snapshot = datasnapShot.child("board_name");
-                String board_name = board_name_snapshot.getValue().toString();
+                    DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
+                    String assignTo = assignedToSnapShot.getValue().toString();
+                    String[] assignToList = assignTo.split(",");
+                    ArrayList<String> assignToArrayList = new ArrayList<String>(Arrays.asList(assignToList));
 
-                DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
-                String assignTo = assignedToSnapShot.getValue().toString();
-                String[] assignToList = assignTo.split(",");
-                ArrayList<String> assignToArrayList = new ArrayList<String>(Arrays.asList(assignToList));
+                    DataSnapshot group_image_snapshot = datasnapShot.child("group_image");
+                    String group_image = group_image_snapshot.getValue().toString();
 
-                DataSnapshot group_image_snapshot = datasnapShot.child("group_image");
-                String group_image = group_image_snapshot.getValue().toString();
+                    DataSnapshot group_creadedBy_snapshot = datasnapShot.child("group_createdBy");
+                    String group_creadedBy = group_creadedBy_snapshot.getValue().toString();
 
-                DataSnapshot group_creadedBy_snapshot = datasnapShot.child("group_createdBy");
-                String group_creadedBy = group_creadedBy_snapshot.getValue().toString();
-
-                group = new BoardSerializable(board_name, group_image, group_creadedBy, assignToArrayList, documentId);
-                fetchBoardDetails(group);
+                    group = new BoardSerializable(board_name, group_image, group_creadedBy, assignToArrayList, documentId);
+                    fetchBoardDetails(group);
+                }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(TaskListActivity.this, "Failed to fetch board details, try again later!", Toast.LENGTH_SHORT).show();
@@ -282,5 +284,82 @@ public class TaskListActivity extends AppCompatActivity {
         String[] assignToList = list.split(",");
         ArrayList<String> assignToArrayList = new ArrayList<String>(Arrays.asList(assignToList));
         return assignToArrayList;
+    }
+
+    ItemTouchHelper.SimpleCallback itemTouchHelper= new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            new AlertDialog.Builder(viewHolder.itemView.getContext())
+                    .setTitle("Delete Task")
+                    .setMessage("Are you sure you want to delete this task?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            TaskSerializableModel task = arrTaskCards.get(viewHolder.getAdapterPosition());
+                            if (task.getIsComplete().equals("false")){
+                                new AlertDialog.Builder(viewHolder.itemView.getContext()).setTitle("Delete Task")
+                                        .setMessage("The task is still not completed. Are you sure you want to delete?")
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                removeTaskFromDataBase(task.getBoard_id(), task.getCard_id());
+                                                arrTaskCards.remove(viewHolder.getAdapterPosition());
+                                                taskAdapter.notifyDataSetChanged();
+                                            }
+                                        })
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                taskAdapter.notifyDataSetChanged();
+                                            }
+                                        }).show();
+                            }else{
+                                removeTaskFromDataBase(task.getBoard_id(), task.getCard_id());
+                                arrTaskCards.remove(viewHolder.getAdapterPosition());
+                                taskAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            taskAdapter.notifyDataSetChanged();
+                        }
+                    })
+                    .show();
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addBackgroundColor(ContextCompat.getColor(TaskListActivity.this, R.color.deleteColor))
+                    .addActionIcon(R.drawable.ic_baseline_delete_24)
+                    .addSwipeLeftLabel("Delete")
+                    .setSwipeLeftLabelColor(ContextCompat.getColor(TaskListActivity.this, R.color.white))
+                    .create()
+                    .decorate();
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    };
+
+    private void removeTaskFromDataBase(String documentId, String cardId) {
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS).child(documentId);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot datasnapShot) {
+                if (datasnapShot.hasChild(cardId)) {
+                    DatabaseReference fieldRef = datasnapShot.child(cardId).getRef();
+                    fieldRef.removeValue();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(TaskListActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

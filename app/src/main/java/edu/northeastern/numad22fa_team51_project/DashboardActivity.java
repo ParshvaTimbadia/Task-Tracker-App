@@ -2,16 +2,21 @@ package edu.northeastern.numad22fa_team51_project;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -38,6 +44,7 @@ import java.util.HashMap;
 import edu.northeastern.numad22fa_team51_project.adapters.GroupItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.UserModel;
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 public class DashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -53,6 +60,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     private FloatingActionButton createBoard;
     private GroupItemsAdapter adapter;
     private Dialog progressDialog;
+    ArrayList<BoardSerializable> groupList;
 
 
     @Override
@@ -60,7 +68,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
-
         menuDrawer = (DrawerLayout) findViewById(R.id.profile_details_drawer_layout);
         navView = (NavigationView) findViewById(R.id.navigation_view);
         groupListRV = findViewById(R.id.rv_boards_list);
@@ -80,7 +87,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                 startActivity(intent);
             }
         });
-
+        new ItemTouchHelper(itemTouchHelper).attachToRecyclerView(groupListRV);
     }
 
 
@@ -93,13 +100,15 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                user_obj = snapshot.getValue(UserModel.class);
-                navUserTextView = (TextView) findViewById(R.id.username_nav_header_text_view);
-                navUserTextView.setText(user_obj.getUser_name());
-                ImageView temp = (ImageView) findViewById(R.id.profile_img_view);
-                temp.setImageResource(R.drawable.avatar_1);
-                if (!user_obj.getUser_img().isEmpty() && !user_obj.getUser_img().equals(" ")) {
-                    Picasso.get().load(user_obj.getUser_img()).into(temp);
+                if (snapshot.hasChildren()) {
+                    user_obj = snapshot.getValue(UserModel.class);
+                    navUserTextView = (TextView) findViewById(R.id.username_nav_header_text_view);
+                    navUserTextView.setText(user_obj.getUser_name());
+                    ImageView temp = (ImageView) findViewById(R.id.profile_img_view);
+                    temp.setImageResource(R.drawable.avatar_1);
+                    if (!user_obj.getUser_img().isEmpty() && !user_obj.getUser_img().equals(" ")) {
+                        Picasso.get().load(user_obj.getUser_img()).into(temp);
+                    }
                 }
             }
             @Override
@@ -202,13 +211,13 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     private void getGroupsList() {
         showProgressDialog("Fetching data");
         databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS);
-        HashMap<String, ArrayList<BoardSerializable>> map = new HashMap<>();
-        ArrayList<BoardSerializable> groupList = new ArrayList<>();
-
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 // Use the values to update the UI
+                groupList = new ArrayList<>();
+                HashMap<String, ArrayList<BoardSerializable>> map = new HashMap<>();
+
                 for (DataSnapshot datasnapShot : snapshot.getChildren()) {
 
                     String documentId = datasnapShot.getKey();
@@ -280,11 +289,85 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         progressDialog.show();
     }
 
+    ItemTouchHelper.SimpleCallback itemTouchHelper=new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            new AlertDialog.Builder(viewHolder.itemView.getContext())
+                    .setTitle("Delete Group")
+                    .setMessage("Are you sure you want to delete this board? There might be some active tasks")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            BoardSerializable group = groupList.get(viewHolder.getAdapterPosition());
+                            groupList.remove(viewHolder.getAdapterPosition());
+                            removeGroupFromDataBase(group.getDocumentId());
+                            adapter.notifyDataSetChanged();
+                        }
+                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            adapter.notifyDataSetChanged();
+                        }
+                    })
+                    .show();
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addBackgroundColor(ContextCompat.getColor(DashboardActivity.this, R.color.deleteColor))
+                    .addActionIcon(R.drawable.ic_baseline_delete_24)
+                    .addSwipeLeftLabel("Delete")
+                    .setSwipeLeftLabelColor(ContextCompat.getColor(DashboardActivity.this, R.color.white))
+                    .create()
+                    .decorate();
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    };
 
     @Override
     protected void onResume() {
         getFirebaseUserData();
         getGroupsList();
         super.onResume();
+    }
+
+
+    private void removeGroupFromDataBase(String documentId) {
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot datasnapShot) {
+                if (datasnapShot.hasChild(documentId)) {
+                    DatabaseReference fieldRef = datasnapShot.child(documentId).getRef();
+                    fieldRef.removeValue();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(DashboardActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot datasnapShot) {
+                if (datasnapShot.hasChild(documentId)) {
+                    DatabaseReference fieldRef = datasnapShot.child(documentId).getRef();
+                    fieldRef.removeValue();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(DashboardActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 }
