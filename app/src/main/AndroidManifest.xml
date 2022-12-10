@@ -18,6 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NUMAD22Fa_Team51_Project"
         tools:targetApi="31">
+
         <activity
             android:name=".UpdateCardDetailsActivity"
             android:exported="false"

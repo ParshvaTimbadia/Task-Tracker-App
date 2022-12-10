@@ -8,14 +8,17 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,6 +55,11 @@ public class MyProfileActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
     private DatabaseReference databaseReference;
     private String UserImageURI = "";
+    private ImageView imageView_Delete;
+    private Button update_my_profile_button;
+    private Dialog progressDialog;
+    private boolean deleted = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,19 +68,41 @@ public class MyProfileActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle("My Profile");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         getFirebaseUserData();
 
+        update_my_profile_button = (Button) findViewById(R.id.update_my_profile_button);
         user_img = (ImageView) findViewById(R.id.my_profile_img_view);
         user_name = (EditText) findViewById(R.id.user_name_my_profile_edit_text);
         user_mobile = (EditText) findViewById(R.id.mobile_my_profile_edit_text);
         user_email = (EditText) findViewById(R.id.email_id_my_profile_edit_text);
         user_pass = (EditText) findViewById(R.id.password_my_profile_edit_text);
+        imageView_Delete = findViewById(R.id.imageView_Delete);
 
         user_img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 extractedCheckSelfPermission();
+            }
+        });
+
+        imageView_Delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MyProfileActivity.this, "Image Removed",Toast.LENGTH_SHORT).show();
+                user_img.setImageResource(R.drawable.avatar_1);
+                selectedImageUri = null;
+                deleted = true;
+            }
+        });
+
+        update_my_profile_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (selectedImageUri != null){
+                    uploadBoardImage();
+                }else{
+                    setFirebaseUserData();
+                }
             }
         });
     }
@@ -89,15 +119,14 @@ public class MyProfileActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data != null){
+        if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!= null && data.getData() != null){
             selectedImageUri = data.getData();
-            uploadBoardImage();
+            Log.d("selectedImageUri", selectedImageUri.toString());
             try{
                 user_img.setImageURI(selectedImageUri);
             }catch (Exception e){
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -137,6 +166,7 @@ public class MyProfileActivity extends AppCompatActivity {
                     user_mobile.setText(curr_user.getUser_mobile());
                 }
 
+                //To store the current_user image.
                 if (!curr_user.getUser_img().isEmpty() && !curr_user.getUser_img().equals(" ")) {
                     Picasso.get().load(curr_user.getUser_img()).into(user_img);
                 }
@@ -152,27 +182,34 @@ public class MyProfileActivity extends AppCompatActivity {
         });
     }
 
-    public void setFirebaseUserData(View view){
+    public void setFirebaseUserData(){
         mAuth = FirebaseAuth.getInstance();
         firebaseUser = mAuth.getCurrentUser();
-
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(mAuth.getUid());
 
         HashMap<String, String> hMap = new HashMap<>();
         hMap.put("user_id", mAuth.getUid());
         hMap.put("user_email", curr_user.getUser_email());
-        if (selectedImageUri == null) {
+        hMap.put("user_img", curr_user.getUser_img());
+
+        if (deleted && selectedImageUri == null){
             hMap.put("user_img", " ");
-        }else{
-            //uploadBoardImage();
+        }
+
+        if (selectedImageUri != null){
             hMap.put("user_img", UserImageURI);
         }
+
+        Log.d("setFirebaseUserData", UserImageURI);
+        Log.d("setFirebaseUserData", hMap.toString());
+
 
         if (!user_mobile.getText().equals("") || !user_mobile.getText().equals(" ")){
             hMap.put("user_mobile", user_mobile.getText().toString());
         }else{
             hMap.put("user_mobile", "0");
         }
+
         hMap.put("user_name", user_name.getText().toString());
         hMap.put("user_passwd", user_pass.getText().toString());
 
@@ -196,6 +233,7 @@ public class MyProfileActivity extends AppCompatActivity {
 
 
     private void uploadBoardImage() {
+        showProgressDialog("Updating Data Please Wait");
         StorageReference sref = FirebaseStorage.getInstance().getReference().child("USER_IMAGES").child(
                 "USER_IMAGE" + System.currentTimeMillis() + "."
                         + Constants.getFileExtension(this, selectedImageUri)
@@ -216,6 +254,9 @@ public class MyProfileActivity extends AppCompatActivity {
                                         Log.e("Downloadable Image URL", uri.toString());
                                         UserImageURI = uri.toString();
                                         // Call a function to create the board.
+                                        setFirebaseUserData();
+                                        progressDialog.dismiss();
+
                                     }
                                 }
                         );
@@ -225,8 +266,10 @@ public class MyProfileActivity extends AppCompatActivity {
                                           @Override
                                           public void onFailure(@NonNull Exception e) {
                                               Toast.makeText(MyProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                              progressDialog.dismiss();
                                           }
                                       }
+
                 );
 
     }
@@ -235,5 +278,13 @@ public class MyProfileActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return super.onSupportNavigateUp();
+    }
+
+    private void showProgressDialog(String text){
+        progressDialog = new Dialog(this);
+        progressDialog.setContentView(R.layout.dialog_progress);
+        TextView progressTV = (TextView) progressDialog.findViewById(R.id.tv_progress_text);
+        progressTV.setText(text);
+        progressDialog.show();
     }
 }
