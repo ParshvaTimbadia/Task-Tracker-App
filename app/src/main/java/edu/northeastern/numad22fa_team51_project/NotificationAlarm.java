@@ -19,7 +19,7 @@ public class NotificationAlarm extends BroadcastReceiver {
         notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pIntent=PendingIntent.getActivity(context,1,notifIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Builder notifCompat=new NotificationCompat.Builder(context,"task_notification").setSmallIcon(R.drawable.ic_done).setContentIntent(pIntent).setContentTitle("Plan your day now!").setContentText("Hey, check out your to-do list.").setAutoCancel(true);
+        NotificationCompat.Builder notifCompat=new NotificationCompat.Builder(context,"task_notification").setSmallIcon(R.drawable.ic_done_yellow).setContentIntent(pIntent).setContentTitle("Plan your day now!").setContentText("Hey, check out your to-do list.").setAutoCancel(true);
         notifManage.notify(1,notifCompat.build());
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);

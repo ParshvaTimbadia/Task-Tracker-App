@@ -2,9 +2,11 @@ package edu.northeastern.numad22fa_team51_project.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -68,12 +70,26 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
 
         if (owned_by != null){
             holder.card_created_by.setText(new StringBuilder().append("Created By: ").append(owned_by));
+            if (task.getIsComplete().equals(Constants.TRUE)){
+                holder.card_created_by.setPaintFlags(holder.card_created_by.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
         }
 
         holder.card_name.setText(task.getCard_name());
+        if (task.getIsComplete().equals(Constants.TRUE)){
+            holder.card_name.setPaintFlags(holder.card_name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+
         if (task.getDueDate() != null && !task.getDueDate().equals("")){
             holder.due_date.setVisibility(View.VISIBLE);
             holder.due_date.setText(new StringBuilder().append("Due: ").append(task.getDueDate()).toString());
+            if (task.getIsComplete().equals(Constants.TRUE)){
+                holder.due_date.setPaintFlags(holder.due_date.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+        }
+
+        if(task.getIsComplete().equals(Constants.TRUE)){
+            holder.img_task_done.setVisibility(View.VISIBLE);
         }
 
         if (selectedMembers.size() > 0) {
@@ -120,6 +136,7 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
         TextView due_date;
         TextView points;
         TextView card_created_by;
+        ImageView img_task_done;
         LinearLayout card_row;
         RecyclerView rv_selected_members_card;
 
@@ -131,6 +148,7 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
             card_created_by = itemView.findViewById(R.id.text_view_card_created_by);
             rv_selected_members_card = itemView.findViewById(R.id.rv_selected_members_card);
             card_row = itemView.findViewById(R.id.card_row);
+            img_task_done = itemView.findViewById(R.id.iv_task_complete);
         }
     }
 }

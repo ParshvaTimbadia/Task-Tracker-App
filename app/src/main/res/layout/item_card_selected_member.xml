@@ -24,9 +24,10 @@
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:contentDescription="Image"
-        android:src="@drawable/ic_add_member"
+        android:src="@drawable/ic_add_member_yellow"
         android:visibility="visible"
-        app:civ_border_color="#2196F3"
+        app:civ_border_color="#FFE033"
         app:civ_border_width="2dp"
         tools:visibility="visible" />
 </LinearLayout>
+    <!--        app:civ_border_color="#2196F3"-->

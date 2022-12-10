@@ -27,4 +27,6 @@
     <string name="due_date">Due Date</string>
     <string name="clear_date">Clear Date</string>
     <string name="select_date">Select Date</string>
+    <string name="task_completed">Task Completed?</string>
+    <string name="task_complete">Task Complete</string>
 </resources>
