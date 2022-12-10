@@ -44,7 +44,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="25dp">
+                    android:layout_marginTop="15dp">
 
                     <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/et_update_card_name"
@@ -60,7 +60,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="25dp">
+                    android:layout_marginTop="15dp">
 
                     <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/et_update_card_notes"
@@ -103,7 +103,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="25dp">
+                    android:layout_marginTop="15dp">
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/tv_update_due_date"
@@ -148,12 +148,27 @@
                     </Button>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:gravity="center"
+                    android:paddingTop="5dp"
+                    android:layout_height="wrap_content">
+
+                    <CheckBox
+                        android:id="@+id/chk_box_task_complete"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/task_completed" />
+
+                </LinearLayout>
+
                 <Button
                     android:id="@+id/btn_update_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="15dp"
                     android:onClick="updateFirebaseTaskData"
                     android:background="@drawable/shape_button_rounded"
                     android:foreground="?attr/selectableItemBackground"
@@ -164,6 +179,7 @@
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:textSize="18sp" />
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

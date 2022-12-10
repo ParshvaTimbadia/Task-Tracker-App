@@ -26,6 +26,8 @@ public class Constants {
     public static final String UNSELECT = "Unselect";
     public static final String BOARD_OBJ = "board_obj";
     public static final String USERS_OBJ_ARR = "users_obj_arr";
+    public static final String FALSE = "false";
+    public static final String TRUE = "true";
 
 
     // Opens an activity to choose an image

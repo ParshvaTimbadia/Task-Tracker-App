@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -60,6 +61,7 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
     Dialog memberDialog;
     public Button btn_update_pick_date;
     public Button btn_update_clear_date;
+    public CheckBox chk_box_task_complete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +90,7 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         card_name = findViewById(R.id.et_update_card_name);
         card_notes = findViewById(R.id.et_update_card_notes);
         card_due_date = findViewById(R.id.tv_update_due_date);
+        chk_box_task_complete = findViewById(R.id.chk_box_task_complete);
 
         fetchCardDataFromFirebase();
 
@@ -177,6 +180,10 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
                 if ((curr_task_obj.getDueDate() != null) || (!curr_task_obj.getDueDate().equals(""))){
                     card_due_date.setText(curr_task_obj.getDueDate());
                 }
+
+                if ((curr_task_obj.getIsComplete().equals(Constants.TRUE))){
+                    chk_box_task_complete.setChecked(true);
+                }
             }
 
             @Override
@@ -229,14 +236,21 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
             hMap.put("DueDate", curr_task_obj.getDueDate());
         }
 
+        if (!curr_task_obj.getIsComplete().equals(String.valueOf(chk_box_task_complete.isChecked()))){
+            hMap.put("isComplete", String.valueOf(chk_box_task_complete.isChecked()));
+        }else{
+            hMap.put("isComplete", curr_task_obj.getIsComplete());
+        }
+
         hMap.put("points", "0");
-        hMap.put("isComplete", "false");
+
 
         //TODO: add check if user adds any points!!
         // check if user made any changes
 
         if ((hMap.get("card_name").equals(curr_task_obj.getCard_name())) && (hMap.get("card_notes").equals(curr_task_obj.getCard_notes()))
-            && (hMap.get("memberList").equals(curr_task_obj.getMemberList())) && (hMap.get("DueDate").equals(curr_task_obj.getDueDate()))){
+            && (hMap.get("memberList").equals(curr_task_obj.getMemberList())) && (hMap.get("DueDate").equals(curr_task_obj.getDueDate()))
+            && (hMap.get("isComplete").equals(curr_task_obj.getIsComplete()))){
             Toast.makeText(UpdateCardDetailsActivity.this, "No Changes made", Toast.LENGTH_SHORT).show();
         }else{
             databaseReference.setValue(hMap).addOnCompleteListener(new OnCompleteListener<Void>() {
