@@ -1,7 +1,6 @@
 package edu.northeastern.numad22fa_team51_project;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -30,9 +29,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.auth.User;
-
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,20 +72,16 @@ public class TaskListActivity extends AppCompatActivity {
             documentId = intent.getStringExtra(Constants.DOCUMENT_ID);
         }
         showProgressDialog("Please wait");
-        new ItemTouchHelper(itemTouchHelper).attachToRecyclerView(taskCardRcw);
-
         taskCardRcw = findViewById(R.id.rv_task_list);
         taskCardRcw.setLayoutManager(new LinearLayoutManager(this));
         parentLayout = findViewById(R.id.card_create_root_layout);
         cardRcwText = findViewById(R.id.tv_no_tasks_available);
-
-
         //TODO: delete on swipe etc, to be decided
 //        new ItemTouchHelper(ith).attachToRecyclerView(taskCardRcw);
-
         createTaskCard = findViewById(R.id.create_task_card);
-
         getBoardDetails();
+        new ItemTouchHelper(itemTouchHelper).attachToRecyclerView(taskCardRcw);
+
     }
 
 
@@ -100,14 +92,6 @@ public class TaskListActivity extends AppCompatActivity {
         populateRecyclerViewWithTaskCards();
     }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (resultCode == 2110 && requestCode == 2111){
-//            getBoardUserDetailsForLookup();
-//        }
-//    }
 
     public void populateRecyclerViewWithTaskCards(){
         databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS);
@@ -313,8 +297,25 @@ public class TaskListActivity extends AppCompatActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            arrTaskCards.remove(viewHolder.getAdapterPosition());
-                            taskAdapter.notifyDataSetChanged();
+                            TaskSerializableModel task = arrTaskCards.get(viewHolder.getAdapterPosition());
+                            if (task.getIsComplete().equals("false")){
+                                new AlertDialog.Builder(viewHolder.itemView.getContext()).setTitle("Delete Task")
+                                        .setMessage("The task is still not completed. Are you sure you want to delete?")
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                removeTaskFromDataBase(task.getBoard_id(), task.getCard_id());
+                                                arrTaskCards.remove(viewHolder.getAdapterPosition());
+                                                taskAdapter.notifyDataSetChanged();
+                                            }
+                                        })
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                taskAdapter.notifyDataSetChanged();
+                                            }
+                                        }).show();
+                            }
                         }
                     }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
@@ -325,4 +326,21 @@ public class TaskListActivity extends AppCompatActivity {
                     .show();
         }
     };
+
+    private void removeTaskFromDataBase(String documentId, String cardId) {
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS).child(documentId);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot datasnapShot) {
+                if (datasnapShot.hasChild(cardId)) {
+                    DatabaseReference fieldRef = datasnapShot.child(cardId).getRef();
+                    fieldRef.removeValue();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(TaskListActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }
