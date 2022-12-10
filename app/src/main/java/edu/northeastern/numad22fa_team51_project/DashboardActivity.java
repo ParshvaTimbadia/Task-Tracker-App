@@ -10,19 +10,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -33,12 +29,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import edu.northeastern.numad22fa_team51_project.adapters.GroupItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
@@ -57,6 +52,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     private TextView rvtextVeiw;
     private FloatingActionButton createBoard;
     private GroupItemsAdapter adapter;
+    private Dialog progressDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +84,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     }
 
 
-
-
     private void getFirebaseUserData(){
         mAuth = FirebaseAuth.getInstance();
         firebaseUser = mAuth.getCurrentUser();
@@ -107,9 +102,10 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                     Picasso.get().load(user_obj.getUser_img()).into(temp);
                 }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
         });
     }
 
@@ -196,7 +192,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
             groupListRV.setVisibility(View.GONE);
             rvtextVeiw.setVisibility(View.VISIBLE);
         }
-
     }
 
     @Override
@@ -205,7 +200,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     }
 
     private void getGroupsList() {
+        showProgressDialog("Fetching data");
         databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS);
+        HashMap<String, ArrayList<BoardSerializable>> map = new HashMap<>();
         ArrayList<BoardSerializable> groupList = new ArrayList<>();
 
         ValueEventListener postListener = new ValueEventListener() {
@@ -229,7 +226,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                     DataSnapshot group_image_snapshot = datasnapShot.child("group_image");
                     String group_image = group_image_snapshot.getValue().toString();
 
-
                     DataSnapshot group_createdBy_snapshot = datasnapShot.child("group_createdBy");
                     String group_createdBy = group_createdBy_snapshot.getValue().toString();
 
@@ -237,19 +233,51 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
                     if (assignToArrayList.contains(firebaseUser.getUid())) {
                         groupList.add(group);
+                        if (!map.containsKey(group_createdBy)){
+                            map.put(group_createdBy, new ArrayList<BoardSerializable>());
+                        }
+                        map.get(group_createdBy).add(group);
                     }
                 }
-                populateGroupsListToUI(groupList);
+                getUserDetails(groupList, map);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
                 Log.w("DashboardActivity", "Error while creating the board", databaseError.toException());
             }
         };
-
         databaseReference.addValueEventListener(postListener);
+        progressDialog.dismiss();
+    }
+
+    private void getUserDetails(ArrayList<BoardSerializable> groupList, HashMap<String, ArrayList<BoardSerializable>> map){
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot datasnapShot : snapshot.getChildren()){
+                    if (map.containsKey(datasnapShot.getKey())){
+                        for (BoardSerializable g : map.get(datasnapShot.getKey())) {
+                            g.setGroup_created_by_user_name(datasnapShot.child("user_name").getValue().toString());
+                        }
+                    }
+                }
+                populateGroupsListToUI(groupList);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void showProgressDialog(String text){
+        progressDialog = new Dialog(this);
+        progressDialog.setContentView(R.layout.dialog_progress);
+        TextView progressTV = (TextView) progressDialog.findViewById(R.id.tv_progress_text);
+        progressTV.setText(text);
+        progressDialog.show();
     }
 
 
