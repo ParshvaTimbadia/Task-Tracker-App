@@ -21,11 +21,17 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 public class CreateTaskCardActivity extends AppCompatActivity {
@@ -39,9 +45,12 @@ public class CreateTaskCardActivity extends AppCompatActivity {
     public TextView et_card_name;
     public TextView et_card_notes;
     public Button btn_pick_date;
+    public Button btn_clear_date;
     public TextView tv_due_date;
 
     private DatabaseReference databaseReference;
+    private FirebaseAuth mAuth;
+    private FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +69,19 @@ public class CreateTaskCardActivity extends AppCompatActivity {
         et_card_notes = findViewById(R.id.et_card_notes);
         btn_pick_date = findViewById(R.id.btn_pick_date);
         tv_due_date = findViewById(R.id.tv_due_date);
+        btn_clear_date = findViewById(R.id.btn_clear_date);
         databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        mAuth = FirebaseAuth.getInstance();
+        firebaseUser = mAuth.getCurrentUser();
+
+        btn_clear_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tv_due_date.setText("");
+                tv_due_date.setHint(R.string.due_date);
+            }
+        });
 
         btn_pick_date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,7 +96,7 @@ public class CreateTaskCardActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                         String month_str, date_str, year_str;
-                        // TODO:: donot allow dates less than today and then add the same to update card details activity as well
+
                         if ((i1 + 1) < 10){
                             month_str = '0' + String.valueOf(i1 + 1);
                         }else{
@@ -89,7 +110,17 @@ public class CreateTaskCardActivity extends AppCompatActivity {
                         }
 
                         year_str = String.valueOf(i);
-                        tv_due_date.setText(month_str  + "-" + date_str  + "-" + year_str);
+
+                        String selected_date = month_str  + "-" + date_str  + "-" + year_str;
+
+                        Date input = new Date(i, i1, i2);
+                        Date today = new Date(year, month, day);
+
+                        if (input.equals(today) || input.after(today)){
+                            tv_due_date.setText(selected_date);
+                        }else{
+                            Toast.makeText(CreateTaskCardActivity.this, "Due date cannot be in the past", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 },year, month, day);
                 dpl.show();
@@ -120,7 +151,7 @@ public class CreateTaskCardActivity extends AppCompatActivity {
             hMap.put("card_notes", "");
         }
 
-        hMap.put("createdBy", "");
+        hMap.put("createdBy", firebaseUser.getUid());
         hMap.put("memberList", "");
 
         if (!tv_due_date.getText().toString().equals("")){

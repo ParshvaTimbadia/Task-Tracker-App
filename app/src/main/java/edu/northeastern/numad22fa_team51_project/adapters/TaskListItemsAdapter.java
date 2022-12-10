@@ -1,5 +1,5 @@
 package edu.northeastern.numad22fa_team51_project.adapters;
-import android.app.Activity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -9,27 +9,33 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.api.Distribution;
-
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import edu.northeastern.numad22fa_team51_project.Constants;
 import edu.northeastern.numad22fa_team51_project.R;
 import edu.northeastern.numad22fa_team51_project.UpdateCardDetailsActivity;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
+import edu.northeastern.numad22fa_team51_project.models.SelectedMembers;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
+import edu.northeastern.numad22fa_team51_project.models.UserModel;
 
 public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdapter.TaskCardViewHolder> {
 
     private TaskListItemsAdapter.onClickListener onClickListener;
     private Context context;
     private ArrayList<TaskSerializableModel> arrCards;
+    private BoardSerializable board;
+    private ArrayList<UserModel> userObjects;
 
-    public TaskListItemsAdapter(Context context, ArrayList<TaskSerializableModel> arrCards) {
+    public TaskListItemsAdapter(Context context, ArrayList<TaskSerializableModel> arrCards, BoardSerializable board, ArrayList<UserModel> userObjects) {
         this.context = context;
         this.arrCards = arrCards;
+        this.board = board;
+        this.userObjects = userObjects;
     }
 
     @NonNull
@@ -43,20 +49,56 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
     @Override
     public void onBindViewHolder(@NonNull TaskCardViewHolder holder, int position) {
         TaskSerializableModel task = arrCards.get(position);
+        HashSet hSet = new HashSet();
+        ArrayList<SelectedMembers> selectedMembers = new ArrayList<>();
+        String owned_by = null;
+
+        for(String s: task.getAssignedTo()){
+            hSet.add(s);
+        }
+
+        for(UserModel user: userObjects){
+            if (hSet.contains(user.getUser_id())){
+                selectedMembers.add(new SelectedMembers(user.getUser_id(), user.getUser_img()));
+            }
+            if (user.getUser_id().equals(task.getCreatedBy())){
+                owned_by = user.getUser_name();
+            }
+        }
+
+        if (owned_by != null){
+            holder.card_created_by.setText(new StringBuilder().append("Created By: ").append(owned_by));
+        }
 
         holder.card_name.setText(task.getCard_name());
-        holder.members_name.setText(task.getAssignedTo().toString());
+        if (task.getDueDate() != null && !task.getDueDate().equals("")){
+            holder.due_date.setVisibility(View.VISIBLE);
+            holder.due_date.setText(new StringBuilder().append("Due: ").append(task.getDueDate()).toString());
+        }
+
+        if (selectedMembers.size() > 0) {
+
+            holder.rv_selected_members_card.setVisibility(View.VISIBLE);
+            holder.rv_selected_members_card.setLayoutManager(new GridLayoutManager(context, 6 ));
+
+            SelectedMembersListAdapter adapter = new SelectedMembersListAdapter(context, selectedMembers, false);
+            holder.rv_selected_members_card.setAdapter(adapter);
+        }
+        else{
+            holder.rv_selected_members_card.setVisibility(View.GONE);
+        }
+        // TODO: Add points here
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, UpdateCardDetailsActivity.class);
                 intent.putExtra(Constants.TASK_DETAILS, task);
+                intent.putExtra(Constants.BOARD_OBJ, board);
+                intent.putExtra(Constants.USERS_OBJ_ARR, userObjects);
                 context.startActivity(intent);
             }
         });
-
-        View parentLayout = (View) ((Activity) context).findViewById(R.id.card_create_root_layout);
     }
 
     @Override
@@ -75,13 +117,19 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
     public static class TaskCardViewHolder extends RecyclerView.ViewHolder{
 
         TextView card_name;
-        TextView members_name;
+        TextView due_date;
+        TextView points;
+        TextView card_created_by;
         LinearLayout card_row;
+        RecyclerView rv_selected_members_card;
 
         public TaskCardViewHolder(@NonNull View itemView) {
             super(itemView);
             card_name = itemView.findViewById(R.id.text_view_card_name);
-            members_name = itemView.findViewById(R.id.text_view_members_name);
+            due_date = itemView.findViewById(R.id.text_view_card_due_date);
+            points = itemView.findViewById(R.id.text_view_card_points);
+            card_created_by = itemView.findViewById(R.id.text_view_card_created_by);
+            rv_selected_members_card = itemView.findViewById(R.id.rv_selected_members_card);
             card_row = itemView.findViewById(R.id.card_row);
         }
     }
