@@ -3,6 +3,7 @@ package edu.northeastern.numad22fa_team51_project;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -59,6 +60,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
@@ -84,6 +86,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
     }
 
+
+
+
     private void getFirebaseUserData(){
         mAuth = FirebaseAuth.getInstance();
         firebaseUser = mAuth.getCurrentUser();
@@ -97,6 +102,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                 navUserTextView = (TextView) findViewById(R.id.username_nav_header_text_view);
                 navUserTextView.setText(user_obj.getUser_name());
                 ImageView temp = (ImageView) findViewById(R.id.profile_img_view);
+                temp.setImageResource(R.drawable.avatar_1);
                 if (!user_obj.getUser_img().isEmpty() && !user_obj.getUser_img().equals(" ")) {
                     Picasso.get().load(user_obj.getUser_img()).into(temp);
                 }
@@ -249,7 +255,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
     @Override
     protected void onResume() {
-        super.onResume();
+        getFirebaseUserData();
         getGroupsList();
+        super.onResume();
     }
 }

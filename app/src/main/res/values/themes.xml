@@ -21,6 +21,7 @@
     <!-- No Action Bar theme. -->
     <style name="Theme.NUMAD22Fa_Team51_Project.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
+
         <item name="colorPrimary">@android:color/holo_green_light</item>
         <item name="colorPrimaryVariant">@android:color/holo_green_dark</item>
         <!--        <item name="colorPrimary">@color/purple_500</item>-->
@@ -34,4 +35,5 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
 </resources>
