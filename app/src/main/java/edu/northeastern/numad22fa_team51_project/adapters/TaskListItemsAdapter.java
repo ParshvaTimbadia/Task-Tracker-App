@@ -1,8 +1,7 @@
 package edu.northeastern.numad22fa_team51_project.adapters;
-import android.app.Activity;
+
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.api.Distribution;
-
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,6 +51,7 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
         TaskSerializableModel task = arrCards.get(position);
         HashSet hSet = new HashSet();
         ArrayList<SelectedMembers> selectedMembers = new ArrayList<>();
+        String owned_by = null;
 
         for(String s: task.getAssignedTo()){
             hSet.add(s);
@@ -65,27 +61,33 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
             if (hSet.contains(user.getUser_id())){
                 selectedMembers.add(new SelectedMembers(user.getUser_id(), user.getUser_img()));
             }
+            if (user.getUser_id().equals(task.getCreatedBy())){
+                owned_by = user.getUser_name();
+            }
+        }
+
+        if (owned_by != null){
+            holder.card_created_by.setText(new StringBuilder().append("Created By: ").append(owned_by));
         }
 
         holder.card_name.setText(task.getCard_name());
+        if (task.getDueDate() != null && !task.getDueDate().equals("")){
+            holder.due_date.setVisibility(View.VISIBLE);
+            holder.due_date.setText(new StringBuilder().append("Due: ").append(task.getDueDate()).toString());
+        }
 
         if (selectedMembers.size() > 0) {
 
-//            select_members.setVisibility(View.GONE);
             holder.rv_selected_members_card.setVisibility(View.VISIBLE);
-
             holder.rv_selected_members_card.setLayoutManager(new GridLayoutManager(context, 6 ));
 
             SelectedMembersListAdapter adapter = new SelectedMembersListAdapter(context, selectedMembers, false);
-
             holder.rv_selected_members_card.setAdapter(adapter);
         }
         else{
-//            select_members.setVisibility(View.VISIBLE);
             holder.rv_selected_members_card.setVisibility(View.GONE);
         }
-
-        //TODO: ADD date and points here
+        // TODO: Add points here
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,6 +119,7 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
         TextView card_name;
         TextView due_date;
         TextView points;
+        TextView card_created_by;
         LinearLayout card_row;
         RecyclerView rv_selected_members_card;
 
@@ -125,6 +128,7 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
             card_name = itemView.findViewById(R.id.text_view_card_name);
             due_date = itemView.findViewById(R.id.text_view_card_due_date);
             points = itemView.findViewById(R.id.text_view_card_points);
+            card_created_by = itemView.findViewById(R.id.text_view_card_created_by);
             rv_selected_members_card = itemView.findViewById(R.id.rv_selected_members_card);
             card_row = itemView.findViewById(R.id.card_row);
         }

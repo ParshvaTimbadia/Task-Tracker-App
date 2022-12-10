@@ -7,11 +7,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +30,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 import edu.northeastern.numad22fa_team51_project.adapters.SelectedMembersListAdapter;
@@ -50,6 +57,8 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
     private TextView card_due_date;
     private TextView select_members;
     Dialog memberDialog;
+    public Button btn_update_pick_date;
+    public Button btn_update_clear_date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +69,9 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         selectedMembersArrayList = new ArrayList<>();
         select_members = findViewById(R.id.tv_update_select_members);
         rv_select_members = findViewById(R.id.rv_selected_members_list);
+        btn_update_pick_date = findViewById(R.id.btn_update_pick_date);
+        btn_update_clear_date = findViewById(R.id.btn_update_clear_date);
+
         intent = getIntent();
         if (intent.hasExtra(Constants.TASK_DETAILS)){
             passed_task_obj = (TaskSerializableModel) intent.getSerializableExtra(Constants.TASK_DETAILS);
@@ -84,6 +96,57 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
             }
         });
 
+        btn_update_clear_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                card_due_date.setText("");
+                card_due_date.setHint(R.string.due_date);
+            }
+        });
+
+        btn_update_pick_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Calendar calendar = Calendar.getInstance();
+                int month = calendar.get(Calendar.MONTH);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                int year = calendar.get(Calendar.YEAR);
+
+                DatePickerDialog dpl = new DatePickerDialog(UpdateCardDetailsActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                        String month_str, date_str, year_str;
+
+                        if ((i1 + 1) < 10){
+                            month_str = '0' + String.valueOf(i1 + 1);
+                        }else{
+                            month_str = String.valueOf(i1 + 1);
+                        }
+
+                        if ((i2) < 10){
+                            date_str = '0' + String.valueOf(i2);
+                        }else{
+                            date_str = String.valueOf(i2);
+                        }
+
+                        year_str = String.valueOf(i);
+
+                        String selected_date = month_str  + "-" + date_str  + "-" + year_str;
+
+                        Date input = new Date(i, i1, i2);
+                        Date today = new Date(year, month, day);
+
+                        if (input.equals(today) || input.after(today)){
+                            card_due_date.setText(selected_date);
+                        }else{
+                            Toast.makeText(UpdateCardDetailsActivity.this, "Due date cannot be in the past", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },year, month, day);
+                dpl.show();
+            }
+        });
     }
 
     @Override
@@ -147,13 +210,18 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
 
         hMap.put("createdBy", passed_board_obj.getGroup_createdBy());
 
-        if (!curr_task_obj.getMemberList().equals(covertArrayListToString(passed_task_obj.getAssignedTo()))){
-            hMap.put("memberList", covertArrayListToString(passed_task_obj.getAssignedTo()));
+        String tempData = covertArrayListToString(passed_task_obj.getAssignedTo());
+        if (tempData.equals(",")){
+            tempData = "";
+        }
+
+        if (!curr_task_obj.getMemberList().equals(tempData)){
+            hMap.put("memberList", tempData);
         }else{
             hMap.put("memberList", curr_task_obj.getMemberList());
         }
 
-        if (!curr_task_obj.getDueDate().equals(card_due_date)){
+        if (!curr_task_obj.getDueDate().equals(card_due_date.getText().toString())){
             hMap.put("DueDate", card_due_date.getText().toString());
         }else{
             hMap.put("DueDate", curr_task_obj.getDueDate());
@@ -162,11 +230,11 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         hMap.put("points", "0");
         hMap.put("isComplete", "false");
 
-        //TODO: add check if user add new members!! and points!!
-        // check if user made any changes add date check as well
+        //TODO: add check if user adds any points!!
+        // check if user made any changes
 
         if ((hMap.get("card_name").equals(curr_task_obj.getCard_name())) && (hMap.get("card_notes").equals(curr_task_obj.getCard_notes()))
-            && (hMap.get("memberList").equals(curr_task_obj.getMemberList()))){
+            && (hMap.get("memberList").equals(curr_task_obj.getMemberList())) && (hMap.get("DueDate").equals(curr_task_obj.getDueDate()))){
             Toast.makeText(UpdateCardDetailsActivity.this, "No Changes made", Toast.LENGTH_SHORT).show();
         }else{
             databaseReference.setValue(hMap).addOnCompleteListener(new OnCompleteListener<Void>() {

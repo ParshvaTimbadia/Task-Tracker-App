@@ -52,7 +52,8 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/card_name"
                         android:inputType="text"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        tools:ignore="SpeakableTextPresentCheck" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -67,7 +68,8 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/notes"
                         android:inputType="text"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        tools:ignore="SpeakableTextPresentCheck" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -103,7 +105,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="25dp">
 
-
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/tv_update_due_date"
                         android:layout_width="match_parent"
@@ -111,26 +112,41 @@
                         android:layout_gravity="center"
                         android:hint="@string/due_date"
                         android:inputType="text"
-                        android:textSize="16sp" />
-
-                    <Button
-                        android:id="@+id/btn_update_pick_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/shape_button_rounded"
-                        android:foreground="?attr/selectableItemBackground"
-                        android:gravity="center"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/due_date"
-                        android:textAllCaps="false"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp" />
-
+                        android:textAlignment="center"
+                        android:textSize="16sp"
+                        tools:ignore="TouchTargetSizeCheck" />
 
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_alignParentBottom="true">
+                    <Button
+                        android:id="@+id/btn_update_pick_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingTop="8dp"
+                        android:layout_margin="8dp"
+                        android:gravity="center_horizontal"
+                        android:text="@string/select_date"
+                        android:textAllCaps="false"
+                        android:textSize="15sp">
+                    </Button>
+                    <Button
+                        android:id="@+id/btn_update_clear_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingTop="8dp"
+                        android:layout_margin="8dp"
+                        android:gravity="center_horizontal"
+                        android:text="@string/clear_date"
+                        android:textAllCaps="false"
+                        android:textSize="15sp">
+                    </Button>
+                </LinearLayout>
 
                 <Button
                     android:id="@+id/btn_update_card"
