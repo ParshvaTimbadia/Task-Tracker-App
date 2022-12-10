@@ -100,12 +100,12 @@ public class TaskListActivity extends AppCompatActivity {
 //    }
 
     public void populateRecyclerViewWithTaskCards(){
-        arrTaskCards = new ArrayList<>();
         databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS);
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                arrTaskCards = new ArrayList<>();
                 snapshot = snapshot.child(documentId);
                 String board_id = documentId;
                 for (DataSnapshot datasnapShot : snapshot.getChildren()) {

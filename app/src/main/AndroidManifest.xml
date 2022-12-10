@@ -43,7 +43,8 @@
         <activity
             android:name=".CreateTaskCardActivity"
             android:exported="false"
-            android:launchMode = "singleTop"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar" />
         <activity
             android:name=".TaskListActivity"
@@ -72,7 +73,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".DashboardActivity"
-            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:launchMode = "singleTop"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar" />
