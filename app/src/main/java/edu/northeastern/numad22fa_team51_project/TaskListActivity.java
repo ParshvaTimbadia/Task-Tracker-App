@@ -6,10 +6,12 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -21,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -42,6 +46,10 @@ import edu.northeastern.numad22fa_team51_project.models.UserModel;
 public class TaskListActivity extends AppCompatActivity {
 
     private Intent intent;
+    private FirebaseUser firebaseUser;
+    private FirebaseAuth mAuth;
+
+
     String documentId = "";
     private Dialog progressDialog;
     TaskListItemsAdapter taskAdapter;
@@ -61,11 +69,14 @@ public class TaskListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_task_list);
+        mAuth = FirebaseAuth.getInstance();
+        firebaseUser = mAuth.getCurrentUser();
         intent = getIntent();
         if (intent.hasExtra(Constants.DOCUMENT_ID)){
             documentId = intent.getStringExtra(Constants.DOCUMENT_ID);
         }
         showProgressDialog("Please wait");
+        new ItemTouchHelper(itemTouchHelper).attachToRecyclerView(taskCardRcw);
 
         taskCardRcw = findViewById(R.id.rv_task_list);
         taskCardRcw.setLayoutManager(new LinearLayoutManager(this));
@@ -86,7 +97,6 @@ public class TaskListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         getBoardUserDetailsForLookup();
-
         populateRecyclerViewWithTaskCards();
     }
 
@@ -168,6 +178,11 @@ public class TaskListActivity extends AppCompatActivity {
                 for (String i: assignToArrayList){
                     user_lookup_ids.add(i);
                 }
+
+                if (!user_lookup_ids.contains(firebaseUser.getUid())){
+                    finish();
+                }
+
 
                 getBoardUserObjects(user_lookup_ids);
             }
@@ -283,4 +298,31 @@ public class TaskListActivity extends AppCompatActivity {
         ArrayList<String> assignToArrayList = new ArrayList<String>(Arrays.asList(assignToList));
         return assignToArrayList;
     }
+
+    ItemTouchHelper.SimpleCallback itemTouchHelper= new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            new AlertDialog.Builder(viewHolder.itemView.getContext())
+                    .setTitle("Delete Task")
+                    .setMessage("Are you sure you want to delete this task?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            arrTaskCards.remove(viewHolder.getAdapterPosition());
+                            taskAdapter.notifyDataSetChanged();
+                        }
+                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            taskAdapter.notifyDataSetChanged();
+                        }
+                    })
+                    .show();
+        }
+    };
 }

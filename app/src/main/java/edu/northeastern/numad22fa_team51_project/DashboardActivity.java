@@ -202,13 +202,13 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     private void getGroupsList() {
         showProgressDialog("Fetching data");
         databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS);
-        HashMap<String, ArrayList<BoardSerializable>> map = new HashMap<>();
-        ArrayList<BoardSerializable> groupList = new ArrayList<>();
-
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 // Use the values to update the UI
+                ArrayList<BoardSerializable> groupList = new ArrayList<>();
+                HashMap<String, ArrayList<BoardSerializable>> map = new HashMap<>();
+
                 for (DataSnapshot datasnapShot : snapshot.getChildren()) {
 
                     String documentId = datasnapShot.getKey();

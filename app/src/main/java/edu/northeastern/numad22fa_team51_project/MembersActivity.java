@@ -1,13 +1,16 @@
 package edu.northeastern.numad22fa_team51_project;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,6 +25,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import edu.northeastern.numad22fa_team51_project.adapters.MemberListItemAdapter;
 import edu.northeastern.numad22fa_team51_project.models.UserModel;
@@ -45,10 +51,15 @@ public class MembersActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     public ArrayList<UserModel> users;
     private Dialog progressDialog;
+    MemberListItemAdapter adapter;
+    private FirebaseUser firebaseUser;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        mAuth = FirebaseAuth.getInstance();
+        firebaseUser = mAuth.getCurrentUser();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_members);
         setupActionBar();
@@ -56,6 +67,8 @@ public class MembersActivity extends AppCompatActivity {
         memberRecycler = findViewById(R.id.rv_members_list);
         memberRecycler.setLayoutManager(new LinearLayoutManager(this));
         memberRecycler.setHasFixedSize(true);
+        new ItemTouchHelper(itemTouchHelper).attachToRecyclerView(memberRecycler);
+
 
         if (intent.hasExtra(Constants.BOARD_DETAILS)) {
             groupId = intent.getStringExtra(Constants.BOARD_DETAILS);
@@ -63,6 +76,7 @@ public class MembersActivity extends AppCompatActivity {
             getBoardMembersAssignedDetails(groupId);
         }
     }
+
 
     private void setupActionBar(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_members_activity);
@@ -89,16 +103,18 @@ public class MembersActivity extends AppCompatActivity {
             databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot datasnapShot) {
-                    String user_email = datasnapShot.child("user_email").getValue().toString();
-                    String user_id = datasnapShot.child("user_id").getValue().toString();
-                    String user_img = datasnapShot.child("user_img").getValue().toString();
-                    String user_mobile = datasnapShot.child("user_mobile").getValue().toString();
-                    String user_name = datasnapShot.child("user_name").getValue().toString();
-                    String user_passwd = datasnapShot.child("user_passwd").getValue().toString();
-                    UserModel user = new UserModel(user_email, user_id, user_name, user_passwd, user_img, user_mobile);
-                    users.add(user);
-                    MemberListItemAdapter adapter = new MemberListItemAdapter(MembersActivity.this, users);
-                    memberRecycler.setAdapter(adapter);
+                    if (datasnapShot.hasChild("user_email")) {
+                        String user_email = datasnapShot.child("user_email").getValue().toString();
+                        String user_id = datasnapShot.child("user_id").getValue().toString();
+                        String user_img = datasnapShot.child("user_img").getValue().toString();
+                        String user_mobile = datasnapShot.child("user_mobile").getValue().toString();
+                        String user_name = datasnapShot.child("user_name").getValue().toString();
+                        String user_passwd = datasnapShot.child("user_passwd").getValue().toString();
+                        UserModel user = new UserModel(user_email, user_id, user_name, user_passwd, user_img, user_mobile);
+                        users.add(user);
+                        adapter = new MemberListItemAdapter(MembersActivity.this, users);
+                        memberRecycler.setAdapter(adapter);
+                    }
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
@@ -243,10 +259,60 @@ public class MembersActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        setResult(2110);
-//        super.onBackPressed();
-//        finish();
-//    }
+    ItemTouchHelper.SimpleCallback itemTouchHelper=new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            new AlertDialog.Builder(viewHolder.itemView.getContext())
+                    .setTitle("Remove Group Member")
+                    .setMessage("Are you sure you want to remove this group member?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            UserModel user_model = users.get(viewHolder.getAdapterPosition());
+                            users.remove(viewHolder.getAdapterPosition());
+                            removeMemberFromDataBase(user_model.getUser_id());
+                            adapter.notifyDataSetChanged();
+                            if (Objects.equals(user_model.getUser_id(), firebaseUser.getUid())){
+                                finish();
+                            }
+                        }
+                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            adapter.notifyDataSetChanged();
+                        }
+                    })
+                    .show();
+        }
+    };
+
+    private void removeMemberFromDataBase(String user_id) {
+        databaseReference = FirebaseDatabase.getInstance().getReference(Constants.BOARDS).child(groupId);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot datasnapShot) {
+                DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
+                String assignTo = assignedToSnapShot.getValue().toString();
+                String[] assignToList = assignTo.split(",");
+                ArrayList<String> assignToArrayList = new ArrayList<String>(
+                        Arrays.asList(assignToList));
+                assignToArrayList.remove(user_id);
+                String StringList = "";
+                for (int i = 0; i < assignToArrayList.size(); i++) {
+                    StringList += assignToArrayList.get(i) + ",";
+                }
+                updateDB(datasnapShot.getRef(), StringList);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MembersActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
