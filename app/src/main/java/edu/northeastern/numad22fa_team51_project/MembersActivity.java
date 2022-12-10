@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,6 +44,7 @@ import java.util.Objects;
 
 import edu.northeastern.numad22fa_team51_project.adapters.MemberListItemAdapter;
 import edu.northeastern.numad22fa_team51_project.models.UserModel;
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 public class MembersActivity extends AppCompatActivity {
 
@@ -129,13 +132,14 @@ public class MembersActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot datasnapShot) {
-
-                DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
-                String assignTo = assignedToSnapShot.getValue().toString();
-                String[] assignToList = assignTo.split(",");
-                ArrayList<String> assignToArrayList = new ArrayList<String>(
-                        Arrays.asList(assignToList));
-                getUsersListAssigned(assignToArrayList);
+                if (datasnapShot.hasChildren()) {
+                    DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
+                    String assignTo = assignedToSnapShot.getValue().toString();
+                    String[] assignToList = assignTo.split(",");
+                    ArrayList<String> assignToArrayList = new ArrayList<String>(
+                            Arrays.asList(assignToList));
+                    getUsersListAssigned(assignToArrayList);
+                }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -289,6 +293,18 @@ public class MembersActivity extends AppCompatActivity {
                     })
                     .show();
         }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addBackgroundColor(ContextCompat.getColor(MembersActivity.this, R.color.deleteColor))
+                    .addActionIcon(R.drawable.ic_baseline_delete_24)
+                    .addSwipeLeftLabel("Delete")
+                    .setSwipeLeftLabelColor(ContextCompat.getColor(MembersActivity.this, R.color.white))
+                    .create()
+                    .decorate();
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
     };
 
     private void removeMemberFromDataBase(String user_id) {
@@ -312,6 +328,7 @@ public class MembersActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(MembersActivity.this, "Failed to fetch user data, try again later!", Toast.LENGTH_SHORT).show();
             }
+
         });
     }
 

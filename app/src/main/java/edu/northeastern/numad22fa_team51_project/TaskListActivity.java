@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,6 +40,7 @@ import edu.northeastern.numad22fa_team51_project.adapters.TaskListItemsAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
 import edu.northeastern.numad22fa_team51_project.models.TaskSerializableModel;
 import edu.northeastern.numad22fa_team51_project.models.UserModel;
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 public class TaskListActivity extends AppCompatActivity {
 
@@ -207,25 +210,25 @@ public class TaskListActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot datasnapShot) {
+                if (datasnapShot.hasChildren()) {
+                    DataSnapshot board_name_snapshot = datasnapShot.child("board_name");
+                    String board_name = board_name_snapshot.getValue().toString();
 
-                DataSnapshot board_name_snapshot = datasnapShot.child("board_name");
-                String board_name = board_name_snapshot.getValue().toString();
+                    DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
+                    String assignTo = assignedToSnapShot.getValue().toString();
+                    String[] assignToList = assignTo.split(",");
+                    ArrayList<String> assignToArrayList = new ArrayList<String>(Arrays.asList(assignToList));
 
-                DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
-                String assignTo = assignedToSnapShot.getValue().toString();
-                String[] assignToList = assignTo.split(",");
-                ArrayList<String> assignToArrayList = new ArrayList<String>(Arrays.asList(assignToList));
+                    DataSnapshot group_image_snapshot = datasnapShot.child("group_image");
+                    String group_image = group_image_snapshot.getValue().toString();
 
-                DataSnapshot group_image_snapshot = datasnapShot.child("group_image");
-                String group_image = group_image_snapshot.getValue().toString();
+                    DataSnapshot group_creadedBy_snapshot = datasnapShot.child("group_createdBy");
+                    String group_creadedBy = group_creadedBy_snapshot.getValue().toString();
 
-                DataSnapshot group_creadedBy_snapshot = datasnapShot.child("group_createdBy");
-                String group_creadedBy = group_creadedBy_snapshot.getValue().toString();
-
-                group = new BoardSerializable(board_name, group_image, group_creadedBy, assignToArrayList, documentId);
-                fetchBoardDetails(group);
+                    group = new BoardSerializable(board_name, group_image, group_creadedBy, assignToArrayList, documentId);
+                    fetchBoardDetails(group);
+                }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(TaskListActivity.this, "Failed to fetch board details, try again later!", Toast.LENGTH_SHORT).show();
@@ -315,6 +318,10 @@ public class TaskListActivity extends AppCompatActivity {
                                                 taskAdapter.notifyDataSetChanged();
                                             }
                                         }).show();
+                            }else{
+                                removeTaskFromDataBase(task.getBoard_id(), task.getCard_id());
+                                arrTaskCards.remove(viewHolder.getAdapterPosition());
+                                taskAdapter.notifyDataSetChanged();
                             }
                         }
                     }).setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -324,6 +331,18 @@ public class TaskListActivity extends AppCompatActivity {
                         }
                     })
                     .show();
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addBackgroundColor(ContextCompat.getColor(TaskListActivity.this, R.color.deleteColor))
+                    .addActionIcon(R.drawable.ic_baseline_delete_24)
+                    .addSwipeLeftLabel("Delete")
+                    .setSwipeLeftLabelColor(ContextCompat.getColor(TaskListActivity.this, R.color.white))
+                    .create()
+                    .decorate();
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
     };
 
