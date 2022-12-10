@@ -39,7 +39,7 @@ public class GroupItemsAdapter extends RecyclerView.Adapter<GroupItemsAdapter.My
         // For group_name
         holder.groupname.setText(board.getGroup_name());
         // For created_by field
-        holder.createdBy.setText("Created by: " + board.getGroup_createdBy());
+        holder.createdBy.setText("Created by: " + board.getGroup_created_by_user_name());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,11 +79,6 @@ public class GroupItemsAdapter extends RecyclerView.Adapter<GroupItemsAdapter.My
             display = itemView.findViewById(R.id.iv_board_image);
             groupname = itemView.findViewById(R.id.tv_name);
             createdBy = itemView.findViewById(R.id.tv_created_by);
-
-//            Log.d("display", display.toString());
-//            Log.d("groupname", groupname.toString());
-//            Log.d("createdBy", createdBy.toString());
-
 
         }
     }

@@ -11,6 +11,7 @@ public class BoardSerializable implements Serializable {
     private ArrayList<String> group_assignedTo = new ArrayList<>();
     private String documentId = "";
     public ArrayList<TaskSerializableModel> taskSerializableList = new ArrayList<>();
+    private String group_created_by_user_name = "";
 
     public BoardSerializable(String group_name, String group_image, String group_createdBy, ArrayList<String> group_assignedTo, String documentId) {
         this.group_name = group_name;
@@ -18,6 +19,14 @@ public class BoardSerializable implements Serializable {
         this.group_createdBy = group_createdBy;
         this.group_assignedTo = group_assignedTo;
         this.documentId = documentId;
+    }
+
+    public String getGroup_created_by_user_name() {
+        return group_created_by_user_name;
+    }
+
+    public void setGroup_created_by_user_name(String group_created_by_user_name) {
+        this.group_created_by_user_name = group_created_by_user_name;
     }
 
     public String getGroup_name() {
