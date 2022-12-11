@@ -446,6 +446,11 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
                     }else{
                         curr_points = curr_points + (points_per_person * magnitude);
                     }
+
+                    if (curr_points < 0) {
+                        curr_points = 0.0F;
+                    }
+
                     hMap_user.put("user_points", String.valueOf(curr_points));
 
 
@@ -455,6 +460,10 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
                         curr_tasks_completed = 0;
                     }else{
                         curr_tasks_completed = (Integer) (curr_tasks_completed + magnitude);
+                    }
+
+                    if (curr_tasks_completed < 0) {
+                        curr_tasks_completed = 0;
                     }
 
                     hMap_user.put("user_tasks_completed", String.valueOf(curr_tasks_completed));
