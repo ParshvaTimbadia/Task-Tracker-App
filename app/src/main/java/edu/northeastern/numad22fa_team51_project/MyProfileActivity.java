@@ -8,11 +8,19 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +45,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
 import edu.northeastern.numad22fa_team51_project.models.UserModel;
@@ -56,9 +65,13 @@ public class MyProfileActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private String UserImageURI = "";
     private ImageView imageView_Delete;
+    private ImageView imageView_Camera;
     private Button update_my_profile_button;
     private Dialog progressDialog;
     private boolean deleted = false;
+    private AlertDialog alert;
+    public Intent cameraIntent;
+    public Bitmap cameraImageUri;
 
 
     @Override
@@ -77,6 +90,7 @@ public class MyProfileActivity extends AppCompatActivity {
         user_email = (EditText) findViewById(R.id.email_id_my_profile_edit_text);
         user_pass = (EditText) findViewById(R.id.password_my_profile_edit_text);
         imageView_Delete = findViewById(R.id.imageView_Delete);
+        imageView_Camera = findViewById(R.id.imageView_Camera);
 
         user_img.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +109,18 @@ public class MyProfileActivity extends AppCompatActivity {
             }
         });
 
+        imageView_Camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                if ((ContextCompat.checkSelfPermission(MyProfileActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)) {
+                    startActivityForResult(cameraIntent, Constants.CAMERA_REQUEST_CODE);
+                }else{
+                    askCameraPermission();
+                }
+            }
+        });
+
         update_my_profile_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,6 +132,32 @@ public class MyProfileActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void askCameraPermission() {
+        // check for permission the very first time
+        if (ContextCompat.checkSelfPermission(MyProfileActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            // disallowed once, show permission rationale
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MyProfileActivity.this, Manifest.permission.CAMERA)){
+                AlertDialog.Builder builder = new AlertDialog.Builder(MyProfileActivity.this);
+                builder.setMessage("Access to camera is required for this function, else select image from local storage by tapping the image above!")
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // ask again for permission
+                                ActivityCompat.requestPermissions(MyProfileActivity.this, new String[] {Manifest.permission.CAMERA}, Constants.CAMERA_REQUEST_CODE);
+                            }
+                        });
+                alert = builder.create();
+                alert.show();
+            }
+            // ask for permission for the first time
+            else{
+                ActivityCompat.requestPermissions(MyProfileActivity.this, new String[] {Manifest.permission.CAMERA}, Constants.CAMERA_REQUEST_CODE);
+            }
+        }
+    }
+
+
 
     private void extractedCheckSelfPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
@@ -121,9 +173,16 @@ public class MyProfileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!= null && data.getData() != null){
             selectedImageUri = data.getData();
-            Log.d("selectedImageUri", selectedImageUri.toString());
             try{
                 user_img.setImageURI(selectedImageUri);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        else if((resultCode == Activity.RESULT_OK && requestCode == Constants.CAMERA_REQUEST_CODE && data!= null)){
+            cameraImageUri = (Bitmap) (data.getExtras().get("data"));
+            try{
+                user_img.setImageBitmap(cameraImageUri);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -138,6 +197,38 @@ public class MyProfileActivity extends AppCompatActivity {
                 Constants.showImageChooser(this);
             }else{
                 Toast.makeText(this, "You denied permission for storage, change from settings.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        if (requestCode == Constants.CAMERA_REQUEST_CODE){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                // permission granted - happy path
+                startActivityForResult(cameraIntent, Constants.CAMERA_REQUEST_CODE);
+            }// user has selected do not ask again
+            else{
+                // have asked once already, permanently denied
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(MyProfileActivity.this, Manifest.permission.CAMERA)){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("Camera permissions have been permanently denied, go to settings and allow camera permission?")
+                            .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    // route to settings menu
+                                    Intent intent = new Intent();
+                                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", MyProfileActivity.this.getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivity(intent);
+                                }
+                            }).setNegativeButton("Don't Allow", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Toast.makeText(MyProfileActivity.this, "Access to camera is required for this function, else select image from local storage by tapping the image above!", Toast.LENGTH_LONG).show();
+                                }
+                            }).setCancelable(false);
+                    alert = builder.create();
+                    alert.show();
+                }
             }
         }
     }
@@ -192,23 +283,24 @@ public class MyProfileActivity extends AppCompatActivity {
         hMap.put("user_email", curr_user.getUser_email());
         hMap.put("user_img", curr_user.getUser_img());
 
-        if (deleted && selectedImageUri == null){
+        if (deleted && selectedImageUri == null && cameraImageUri == null){
             hMap.put("user_img", " ");
         }
 
         if (selectedImageUri != null){
             hMap.put("user_img", UserImageURI);
         }
-
-        Log.d("setFirebaseUserData", UserImageURI);
-        Log.d("setFirebaseUserData", hMap.toString());
-
+        else if (cameraImageUri != null){
+            hMap.put("user_img", getImageUri(this, cameraImageUri).toString());
+        }
 
         if (!user_mobile.getText().equals("") || !user_mobile.getText().equals(" ")){
             hMap.put("user_mobile", user_mobile.getText().toString());
         }else{
             hMap.put("user_mobile", "0");
         }
+
+        //TODO: add all fields!!!
 
         hMap.put("user_name", user_name.getText().toString());
         hMap.put("user_passwd", user_pass.getText().toString());
@@ -286,5 +378,12 @@ public class MyProfileActivity extends AppCompatActivity {
         TextView progressTV = (TextView) progressDialog.findViewById(R.id.tv_progress_text);
         progressTV.setText(text);
         progressDialog.show();
+    }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Profile", null);
+        return Uri.parse(path);
     }
 }

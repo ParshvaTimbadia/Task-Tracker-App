@@ -30,6 +30,7 @@ public class Constants {
     public static final String TRUE = "true";
     public static final int MAX_POINTS_TASK = 1000;
     public static final int MIN_POINTS_TASK = 0;
+    public static final int CAMERA_REQUEST_CODE = 20010;
 
 
     // Opens an activity to choose an image
