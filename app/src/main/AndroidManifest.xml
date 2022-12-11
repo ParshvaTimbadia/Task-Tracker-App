@@ -84,6 +84,8 @@
             android:screenOrientation="portrait" />
         <receiver
             android:name=".NotificationAlarm" />
+        <receiver
+            android:name=".DueDateNotificationAlarm" />
         <activity
             android:name=".SplashActivity"
             android:exported="true"
