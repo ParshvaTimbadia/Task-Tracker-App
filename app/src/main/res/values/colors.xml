@@ -10,5 +10,9 @@
     <color name="primary_text_color">#363A43</color>
     <color name="secondary_text_color">#7A8089</color>
     <color name="deleteColor">#880000</color>
+    <color name="red">#FFFF0000</color>
+    <color name="green">#FF00FF00</color>
+    <color name="light_blue">#29B696</color>
+    <color name="light_red">#995350</color>
 
 </resources>
