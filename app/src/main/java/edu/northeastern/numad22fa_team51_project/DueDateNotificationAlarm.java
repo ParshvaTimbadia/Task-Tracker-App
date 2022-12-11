@@ -141,12 +141,12 @@ public class DueDateNotificationAlarm  extends BroadcastReceiver{
         Intent notifIntent=new Intent(context,DashboardActivity.class);
         notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PendingIntent pIntent=PendingIntent.getActivity(context,1,notifIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pIntent=PendingIntent.getActivity(context,2,notifIntent,PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder notifCompat=new NotificationCompat.Builder(context,"task_notification").setSmallIcon(R.drawable.ic_done_yellow).setContentIntent(pIntent).setContentTitle("Task Due Today!").setContentText("Complete your task before it's too late!").setAutoCancel(true);
-        notifManage.notify(1,notifCompat.build());
+        notifManage.notify(2,notifCompat.build());
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(1, notifCompat.build());
+        notificationManager.notify(2, notifCompat.build());
     }
 
 

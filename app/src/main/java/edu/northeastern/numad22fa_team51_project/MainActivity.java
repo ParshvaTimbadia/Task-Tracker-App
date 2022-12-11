@@ -99,16 +99,18 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel();
         Intent intent=new Intent(MainActivity.this,NotificationAlarm.class);
         Intent dueDateIntent=new Intent(MainActivity.this,DueDateNotificationAlarm.class);
-        PendingIntent pIntent=PendingIntent.getBroadcast(MainActivity.this,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent dueDatePIntent=PendingIntent.getBroadcast(MainActivity.this,1,dueDateIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pIntent=PendingIntent.getBroadcast(MainActivity.this,1,intent,PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent dueDatePIntent=PendingIntent.getBroadcast(MainActivity.this,2,dueDateIntent,PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarm=(AlarmManager) getSystemService(ALARM_SERVICE);
         Calendar cal=Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY,17);
-        cal.set(Calendar.MINUTE,03);
+        cal.set(Calendar.HOUR_OF_DAY,8);
+        cal.set(Calendar.MINUTE,30);
+        cal.set(Calendar.SECOND,1);
 
         alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pIntent);
-        cal.set(Calendar.HOUR_OF_DAY,17);
-        cal.set(Calendar.MINUTE,04);
+        cal.set(Calendar.HOUR_OF_DAY,10);
+        cal.set(Calendar.MINUTE,0);
+        cal.set(Calendar.SECOND,10);
 
         alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,dueDatePIntent);
     }
