@@ -103,12 +103,12 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent dueDatePIntent=PendingIntent.getBroadcast(MainActivity.this,1,dueDateIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm=(AlarmManager) getSystemService(ALARM_SERVICE);
         Calendar cal=Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY,16);
-        cal.set(Calendar.MINUTE,20);
+        cal.set(Calendar.HOUR_OF_DAY,17);
+        cal.set(Calendar.MINUTE,03);
 
         alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pIntent);
-        cal.set(Calendar.HOUR_OF_DAY,16);
-        cal.set(Calendar.MINUTE,25);
+        cal.set(Calendar.HOUR_OF_DAY,17);
+        cal.set(Calendar.MINUTE,04);
 
         alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,dueDatePIntent);
     }
