@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -54,6 +55,7 @@ public class CreateTaskCardActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
+    private long lastClickTime = 0;
 
     public int pointCount = Constants.MIN_POINTS_TASK;
 
@@ -138,6 +140,13 @@ public class CreateTaskCardActivity extends AppCompatActivity {
 
 
     public void addTaskCardToBoard(View view){
+
+        // prevent redundant network calls being executed multiple times if button is pressed more than once within 1 sec
+        if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
+            return;
+        }
+        lastClickTime = SystemClock.elapsedRealtime();
+
         // Add more field checks here if needed
         if(et_card_name.getText() == null || et_card_name.getText().toString().equals("")){
             Toast.makeText(CreateTaskCardActivity.this, "Please enter a name for the task", Toast.LENGTH_SHORT).show();

@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -50,7 +51,7 @@ public class CreateBoardActivity extends AppCompatActivity {
     private FirebaseFirestore fireStore = FirebaseFirestore.getInstance();
     private EditText groupName;
     private Dialog progressDialog;
-
+    private long lastClickTime = 0;
 
 
     @Override
@@ -81,6 +82,13 @@ public class CreateBoardActivity extends AppCompatActivity {
         user_create_bttn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // prevent redundant network calls being executed multiple times if button is pressed more than once within 1 sec
+                if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
+                    return;
+                }
+                lastClickTime = SystemClock.elapsedRealtime();
+
                 if(groupName.getText() == null || groupName.getText().toString().equals("")){
                     Log.d("groupName", String.valueOf(groupName));
                     Toast.makeText(CreateBoardActivity.this, "Please fill in the group name", Toast.LENGTH_SHORT).show();

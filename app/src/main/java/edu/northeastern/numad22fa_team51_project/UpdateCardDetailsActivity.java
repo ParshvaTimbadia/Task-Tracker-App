@@ -14,6 +14,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -66,6 +67,7 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
     public Button btn_update_pick_date;
     public Button btn_update_clear_date;
     public CheckBox chk_box_task_complete;
+    private long lastClickTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,6 +203,12 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
     }
 
     public void updateFirebaseTaskData(View view){
+
+        // prevent redundant network calls being executed multiple times if button is pressed more than once within 1 sec
+        if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
+            return;
+        }
+        lastClickTime = SystemClock.elapsedRealtime();
 
         databaseReference = FirebaseDatabase.getInstance().getReference(Constants.TASKS).child(passed_task_obj.getBoard_id()).child(passed_task_obj.getCard_id());
 
