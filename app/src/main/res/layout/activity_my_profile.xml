@@ -41,7 +41,7 @@
         tools:ignore="TextContrastCheck" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageView_Camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/profile_image"
@@ -60,7 +60,7 @@
         android:layout_height="29dp"
         android:contentDescription="@string/profile_image"
         app:layout_constraintBottom_toBottomOf="@+id/my_profile_img_view"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
+        app:layout_constraintEnd_toEndOf="@+id/imageView_Camera"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/my_profile_img_view"
         app:layout_constraintTop_toTopOf="@+id/my_profile_img_view"
@@ -126,6 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:autofillHints="phone"
+                android:maxLength="10"
                 android:ems="12"
                 android:hint="@string/phone"
                 android:inputType="phone"
