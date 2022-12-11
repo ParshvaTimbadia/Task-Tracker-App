@@ -186,6 +186,7 @@ public class MyProfileActivity extends AppCompatActivity {
             }catch (Exception e){
                 e.printStackTrace();
             }
+            selectedImageUri = getImageUri(this, cameraImageUri);
         }
     }
 
@@ -243,7 +244,7 @@ public class MyProfileActivity extends AppCompatActivity {
         firebaseUser = mAuth.getCurrentUser();
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(mAuth.getUid());
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 curr_user = snapshot.getValue(UserModel.class);
@@ -283,27 +284,26 @@ public class MyProfileActivity extends AppCompatActivity {
         hMap.put("user_email", curr_user.getUser_email());
         hMap.put("user_img", curr_user.getUser_img());
 
-        if (deleted && selectedImageUri == null && cameraImageUri == null){
+        if (deleted && selectedImageUri == null){
             hMap.put("user_img", " ");
         }
 
         if (selectedImageUri != null){
             hMap.put("user_img", UserImageURI);
         }
-        else if (cameraImageUri != null){
-            hMap.put("user_img", getImageUri(this, cameraImageUri).toString());
-        }
 
-        if (!user_mobile.getText().equals("") || !user_mobile.getText().equals(" ")){
+        if (!user_mobile.getText().toString().isEmpty() && !user_mobile.getText().toString().equals("") && !user_mobile.getText().toString().equals(" ")){
             hMap.put("user_mobile", user_mobile.getText().toString());
         }else{
             hMap.put("user_mobile", "0");
         }
 
-        //TODO: add all fields!!!
-
         hMap.put("user_name", user_name.getText().toString());
         hMap.put("user_passwd", user_pass.getText().toString());
+
+        hMap.put("user_points", curr_user.getUser_points());
+        hMap.put("user_tasks_completed", curr_user.getUser_tasks_completed());
+
 
         // check if user made any changes
         if ((hMap.get("user_name").equals(curr_user.getUser_name())) && (hMap.get("user_img").equals(curr_user.getUser_img())) &&

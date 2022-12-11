@@ -126,6 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:autofillHints="phone"
+                android:maxLength="10"
                 android:ems="12"
                 android:hint="@string/phone"
                 android:inputType="phone"
