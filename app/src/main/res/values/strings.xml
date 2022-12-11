@@ -13,6 +13,7 @@
     <string name="project_board_illustration">project_board_illustration</string>
     <string name="login_board_illustration">login board illustration</string>
     <string name="profile_image">profile image</string>
+    <string name="show_chart">My progress</string>
     <string name="my_profile">My profile</string>
     <string name="phone">Phone</string>
     <string name="update">Update</string>

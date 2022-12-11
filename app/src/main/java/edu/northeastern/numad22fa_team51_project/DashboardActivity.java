@@ -166,6 +166,10 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 //            intent.putExtra("user_details", user_obj);  //showing stale data if user updates
             startActivityForResult(intent, 1001);
         }
+        else if(item.getItemId() == R.id.drawer_bar_chart){
+            Intent intent = new Intent(getApplicationContext(), ShowProgressActivity.class);
+            startActivity(intent);
+        }
         else if (item.getItemId() == R.id.drawer_sign_out){
             mAuth.signOut();
 
