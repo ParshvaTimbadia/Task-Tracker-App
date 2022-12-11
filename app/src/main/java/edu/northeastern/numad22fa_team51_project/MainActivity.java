@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
                         Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        //setAlarm();
+                        setAlarm();
                         startActivity(new Intent(MainActivity.this, DashboardActivity.class));
                         finish();
                     }else{
@@ -95,16 +95,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Referred https://developer.android.com/develop/ui/views/notifications/build-notification#java
-    //Pair programming: Divit, Parshva, Shivani
     public void setAlarm(){
         createNotificationChannel();
         Intent intent=new Intent(MainActivity.this,NotificationAlarm.class);
+        Intent dueDateIntent=new Intent(MainActivity.this,DueDateNotificationAlarm.class);
         PendingIntent pIntent=PendingIntent.getBroadcast(MainActivity.this,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent dueDatePIntent=PendingIntent.getBroadcast(MainActivity.this,1,dueDateIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm=(AlarmManager) getSystemService(ALARM_SERVICE);
         Calendar cal=Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY,8);
-        cal.set(Calendar.MINUTE,1);
+        cal.set(Calendar.HOUR_OF_DAY,17);
+        cal.set(Calendar.MINUTE,03);
+
         alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pIntent);
+        cal.set(Calendar.HOUR_OF_DAY,17);
+        cal.set(Calendar.MINUTE,04);
+
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,dueDatePIntent);
     }
 
     private void createNotificationChannel() {
