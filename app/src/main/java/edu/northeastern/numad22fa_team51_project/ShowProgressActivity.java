@@ -7,6 +7,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -47,6 +48,8 @@ public class ShowProgressActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_progress);
 
@@ -57,7 +60,8 @@ public class ShowProgressActivity extends AppCompatActivity {
         int taskIncomplete=0;
         getFirebaseUserData();
 
-
+        getSupportActionBar().setTitle("Progress Tracker");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -143,29 +147,9 @@ public class ShowProgressActivity extends AppCompatActivity {
         });
     }
 
-    private void setupCustomActionBar(){
-        toolbar = findViewById(R.id.toolbar_dash_activity);
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setTitle("Progress");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        toolbar.setTitleTextColor(Color.WHITE);
-        toolbar.setNavigationIcon(R.drawable.ic_action_open_menu);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // open drawer
-                if (menuDrawer.isDrawerOpen(GravityCompat.START)){
-                    menuDrawer.closeDrawer(GravityCompat.START);
-                }else{
-                    menuDrawer.openDrawer(GravityCompat.START);
-                }
-            }
-        });
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return super.onSupportNavigateUp();
     }
-
-
-
-
 }
