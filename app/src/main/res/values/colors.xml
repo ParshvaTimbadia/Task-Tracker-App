@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="primary_text_color">#363A43</color>
     <color name="secondary_text_color">#7A8089</color>
+    <color name="deleteColor">#880000</color>
+
 </resources>

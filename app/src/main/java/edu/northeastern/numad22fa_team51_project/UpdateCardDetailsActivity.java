@@ -169,20 +169,22 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                curr_task_obj = snapshot.getValue(TaskSerializableModel.class);
+                if (snapshot.hasChildren()) {
+                    curr_task_obj = snapshot.getValue(TaskSerializableModel.class);
 
-                card_name.setText(curr_task_obj.getCard_name());
+                    card_name.setText(curr_task_obj.getCard_name());
 
-                if ((curr_task_obj.getCard_notes() != null) || (!curr_task_obj.getCard_notes().equals(""))){
-                    card_notes.setText(curr_task_obj.getCard_notes());
-                }
+                    if ((curr_task_obj.getCard_notes() != null) || (!curr_task_obj.getCard_notes().equals(""))) {
+                        card_notes.setText(curr_task_obj.getCard_notes());
+                    }
 
-                if ((curr_task_obj.getDueDate() != null) || (!curr_task_obj.getDueDate().equals(""))){
-                    card_due_date.setText(curr_task_obj.getDueDate());
-                }
+                    if ((curr_task_obj.getDueDate() != null) || (!curr_task_obj.getDueDate().equals(""))) {
+                        card_due_date.setText(curr_task_obj.getDueDate());
+                    }
 
-                if ((curr_task_obj.getIsComplete().equals(Constants.TRUE))){
-                    chk_box_task_complete.setChecked(true);
+                    if ((curr_task_obj.getIsComplete().equals(Constants.TRUE))) {
+                        chk_box_task_complete.setChecked(true);
+                    }
                 }
             }
 
@@ -378,4 +380,6 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
             rv_select_members.setVisibility(View.GONE);
         }
     }
+
+
 }
