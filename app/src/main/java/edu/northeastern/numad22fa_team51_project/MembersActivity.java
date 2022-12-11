@@ -106,14 +106,16 @@ public class MembersActivity extends AppCompatActivity {
             databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot datasnapShot) {
-                    if (datasnapShot.hasChild("user_email")) {
+                    if (datasnapShot.hasChildren()) {
                         String user_email = datasnapShot.child("user_email").getValue().toString();
                         String user_id = datasnapShot.child("user_id").getValue().toString();
                         String user_img = datasnapShot.child("user_img").getValue().toString();
                         String user_mobile = datasnapShot.child("user_mobile").getValue().toString();
                         String user_name = datasnapShot.child("user_name").getValue().toString();
                         String user_passwd = datasnapShot.child("user_passwd").getValue().toString();
-                        UserModel user = new UserModel(user_email, user_id, user_name, user_passwd, user_img, user_mobile);
+                        String user_points = datasnapShot.child("user_points").getValue().toString();
+                        String user_tasks_completed = datasnapShot.child("user_tasks_completed").getValue().toString();
+                        UserModel user = new UserModel(user_email, user_id, user_name, user_passwd, user_img, user_mobile, user_points, user_tasks_completed);
                         users.add(user);
                         adapter = new MemberListItemAdapter(MembersActivity.this, users);
                         memberRecycler.setAdapter(adapter);

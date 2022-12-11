@@ -103,7 +103,13 @@ public class TaskListItemsAdapter extends RecyclerView.Adapter<TaskListItemsAdap
         else{
             holder.rv_selected_members_card.setVisibility(View.GONE);
         }
-        // TODO: Add points here
+
+        holder.points.setVisibility(View.VISIBLE);
+        holder.points.setText(new StringBuilder().append("Points: ").append(task.getPoints()).toString());
+
+        if(task.getIsComplete().equals(Constants.TRUE)){
+            holder.points.setPaintFlags(holder.points.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

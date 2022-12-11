@@ -102,6 +102,8 @@ public class SignUpActivity extends AppCompatActivity {
                         hMap.put("user_passwd", userPasswd);
                         hMap.put("user_img", " ");
                         hMap.put("user_mobile", "0");
+                        hMap.put("user_points", "0.0");
+                        hMap.put("user_tasks_completed", "0");
 
                         reference.child("Users").child(uid).setValue(hMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override

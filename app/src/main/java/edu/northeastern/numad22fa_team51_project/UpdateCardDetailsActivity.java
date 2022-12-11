@@ -24,6 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,9 +34,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import edu.northeastern.numad22fa_team51_project.adapters.SelectedMembersListAdapter;
 import edu.northeastern.numad22fa_team51_project.models.BoardSerializable;
@@ -244,11 +248,21 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
             hMap.put("isComplete", curr_task_obj.getIsComplete());
         }
 
-        hMap.put("points", "0");
+        hMap.put("points", curr_task_obj.getPoints());
 
+                /*TODO: add check if user adds any points!!
+        if user selects task completed call a function to allocate/deallocate points if task completed detected
 
-        //TODO: add check if user adds any points!!
-        // check if user made any changes
+        */
+
+        if (curr_task_obj.getIsComplete().equals(Constants.FALSE) && chk_box_task_complete.isChecked()){
+            //add points
+            assignTaskPointsToUsers(true);
+
+        }else if (curr_task_obj.getIsComplete().equals(Constants.TRUE) && !chk_box_task_complete.isChecked()){
+            // sub points
+            assignTaskPointsToUsers(false);
+        }
 
         if ((hMap.get("card_name").equals(curr_task_obj.getCard_name())) && (hMap.get("card_notes").equals(curr_task_obj.getCard_notes()))
             && (hMap.get("memberList").equals(curr_task_obj.getMemberList())) && (hMap.get("DueDate").equals(curr_task_obj.getDueDate()))
@@ -381,5 +395,93 @@ public class UpdateCardDetailsActivity extends AppCompatActivity {
         }
     }
 
+    public void assignTaskPointsToUsers(boolean flag){
 
+        int magnitude;
+        if (flag){
+            magnitude = 1;
+        }else{
+            magnitude = -1;
+        }
+
+        HashSet hSet = new HashSet();
+
+        int total_points = Integer.valueOf(curr_task_obj.getPoints());
+        ArrayList<String> assignedTo = convertStringToArrayList(curr_task_obj.getMemberList());
+        assignedTo.remove("");
+        assignedTo.remove(" ");
+        int num_assigned_members = assignedTo.size();
+
+        DatabaseReference databaseReferenceUser = FirebaseDatabase.getInstance().getReference(Constants.USERS);
+
+        for (String user_id: assignedTo){
+            hSet.add(user_id);
+        }
+
+        float points_per_person;
+
+        if (num_assigned_members == 0){
+            points_per_person = 0.0F;
+        }else{
+            points_per_person = (float) total_points / num_assigned_members;
+        }
+
+        for(UserModel user_obj: passed_user_obj_arr){
+
+            if (hSet.contains(user_obj.getUser_id())){
+                Log.d("UpdateCard-if", user_obj.getUser_id());
+                HashMap<String, String> hMap_user = new HashMap<>();
+                hMap_user.put("user_id", user_obj.getUser_id());
+                hMap_user.put("user_name", user_obj.getUser_name());
+                hMap_user.put("user_email", user_obj.getUser_email());
+                hMap_user.put("user_passwd", user_obj.getUser_passwd());
+                hMap_user.put("user_img", user_obj.getUser_img());
+                hMap_user.put("user_mobile", user_obj.getUser_mobile());
+
+                if (user_obj.getUser_points() != null && user_obj.getUser_tasks_completed() != null){ // TODO: remove this if
+
+                    float curr_points = Float.parseFloat(user_obj.getUser_points());
+                    if (magnitude == -1 && curr_points == 0.0F){
+                        curr_points = 0.0F;
+                    }else{
+                        curr_points = curr_points + (points_per_person * magnitude);
+                    }
+                    hMap_user.put("user_points", String.valueOf(curr_points));
+
+
+                    int curr_tasks_completed = Integer.parseInt(user_obj.getUser_tasks_completed());
+
+                    if (magnitude == -1 && curr_tasks_completed == 0){
+                        curr_tasks_completed = 0;
+                    }else{
+                        curr_tasks_completed = (Integer) (curr_tasks_completed + magnitude);
+                    }
+
+                    hMap_user.put("user_tasks_completed", String.valueOf(curr_tasks_completed));
+
+                }
+
+                databaseReferenceUser.child(user_obj.getUser_id()).setValue(hMap_user)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Toast.makeText(UpdateCardDetailsActivity.this, "Points Allocated Successfully", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(UpdateCardDetailsActivity.this, "Unable to assign points to users at this moment, please try again later!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        }
+    }
+
+    public ArrayList<String> convertStringToArrayList(String list){
+
+        String[] assignToList = list.split(",");
+        ArrayList<String> assignToArrayList = new ArrayList<String>(Arrays.asList(assignToList));
+        return assignToArrayList;
+    }
 }

@@ -52,7 +52,8 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/card_name"
                         android:inputType="text"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        tools:ignore="SpeakableTextPresentCheck" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -67,7 +68,8 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/notes"
                         android:inputType="text"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        tools:ignore="SpeakableTextPresentCheck" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -119,12 +121,81 @@
                     </Button>
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:paddingTop="8dp"
+                    android:text="@string/points"
+                    android:textAlignment="center"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <Button
+                            android:id="@+id/points_decrease_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:minWidth="50sp"
+                            android:onClick="pointsIncrease"
+                            android:text="+"
+                            android:textSize="20dp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toEndOf="@+id/et_card_points"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <EditText
+                            android:id="@+id/et_card_points"
+                            android:layout_width="120dp"
+                            android:layout_height="50dp"
+                            android:hint="@string/points"
+                            android:inputType="number"
+                            android:textSize="16sp"
+                            android:maxLength="5"
+                            android:textAlignment="center"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <Button
+                            android:id="@+id/points_increase_button"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:minWidth="50sp"
+                            android:onClick="pointsDecrease"
+                            android:text="-"
+                            android:textSize="20dp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/et_card_points"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+
                 <Button
                     android:id="@+id/btn_create_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="2dp"
                     android:background="@drawable/shape_button_rounded"
                     android:foreground="?attr/selectableItemBackground"
                     android:gravity="center"

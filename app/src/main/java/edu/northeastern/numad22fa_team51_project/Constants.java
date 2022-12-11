@@ -28,6 +28,8 @@ public class Constants {
     public static final String USERS_OBJ_ARR = "users_obj_arr";
     public static final String FALSE = "false";
     public static final String TRUE = "true";
+    public static final int MAX_POINTS_TASK = 1000;
+    public static final int MIN_POINTS_TASK = 0;
 
 
     // Opens an activity to choose an image
