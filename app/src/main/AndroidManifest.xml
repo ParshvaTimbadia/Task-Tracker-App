@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="edu.northeastern.numad22fa_team51_project"
-    >
+    package="edu.northeastern.numad22fa_team51_project">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.SET_ALARM"/>
+    <uses-permission android:name="android.permission.SET_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -19,11 +18,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NUMAD22Fa_Team51_Project"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ShowProgressActivity"
+            android:exported="false"
+            />
         <activity
             android:name=".UpdateCardDetailsActivity"
             android:exported="false"
-            android:launchMode = "singleTop"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar">
             <meta-data
@@ -33,7 +35,7 @@
         <activity
             android:name=".MembersActivity"
             android:exported="false"
-            android:launchMode = "singleTop"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar">
             <meta-data
@@ -49,8 +51,8 @@
         <activity
             android:name=".TaskListActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:launchMode = "singleTop"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar">
             <meta-data
                 android:name="android.app.lib_name"
@@ -59,8 +61,8 @@
         <activity
             android:name=".CreateBoardActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:launchMode = "singleTop"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar">
             <meta-data
                 android:name="android.app.lib_name"
@@ -69,27 +71,27 @@
         <activity
             android:name=".MyProfileActivity"
             android:exported="false"
-            android:launchMode = "singleTop"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name=".DashboardActivity"
-            android:screenOrientation="portrait"
             android:exported="false"
-            android:launchMode = "singleTop"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.NUMAD22Fa_Team51_Project.NoActionBar" />
         <activity
             android:name=".SignUpActivity"
             android:exported="false"
-            android:launchMode = "singleTop"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
-        <receiver
-            android:name=".NotificationAlarm" />
-        <receiver
-            android:name=".DueDateNotificationAlarm" />
+
+        <receiver android:name=".NotificationAlarm" />
+        <receiver android:name=".DueDateNotificationAlarm" />
+
         <activity
             android:name=".SplashActivity"
             android:exported="true"
-            android:launchMode = "singleTop"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
             tools:ignore="LockedOrientationActivity">
@@ -102,7 +104,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:launchMode = "singleTop"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
     </application>
 
