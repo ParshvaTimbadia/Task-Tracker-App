@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,10 +49,13 @@ public class CreateTaskCardActivity extends AppCompatActivity {
     public Button btn_pick_date;
     public Button btn_clear_date;
     public TextView tv_due_date;
+    public EditText et_card_points;
 
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
+
+    public int pointCount = Constants.MIN_POINTS_TASK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +75,13 @@ public class CreateTaskCardActivity extends AppCompatActivity {
         btn_pick_date = findViewById(R.id.btn_pick_date);
         tv_due_date = findViewById(R.id.tv_due_date);
         btn_clear_date = findViewById(R.id.btn_clear_date);
+        et_card_points = findViewById(R.id.et_card_points);
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         mAuth = FirebaseAuth.getInstance();
         firebaseUser = mAuth.getCurrentUser();
+
+        updatePointsCount();
 
         btn_clear_date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,7 +168,20 @@ public class CreateTaskCardActivity extends AppCompatActivity {
             hMap.put("DueDate", "");
         }
 
-        hMap.put("points", "0");
+        if (!et_card_points.getText().toString().equals("") && et_card_points.getText() != null){
+            if (Integer.parseInt(et_card_points.getText().toString()) <= Constants.MAX_POINTS_TASK
+                    && Integer.parseInt(et_card_points.getText().toString()) >= Constants.MIN_POINTS_TASK){
+                hMap.put("points", et_card_points.getText().toString());
+
+            }else{
+                Toast.makeText(CreateTaskCardActivity.this, "Points need to be between " + String.valueOf(Constants.MIN_POINTS_TASK) + " and " + String.valueOf(Constants.MAX_POINTS_TASK), Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                return;
+            }
+        }else{
+            hMap.put("points", String.valueOf(Constants.MIN_POINTS_TASK));
+        }
+
         hMap.put("isComplete", "false");
 
         databaseReference.child(Constants.TASKS).child(documentId).push().setValue(hMap)
@@ -207,5 +228,41 @@ public class CreateTaskCardActivity extends AppCompatActivity {
         TextView progressTV = (TextView) progressDialog.findViewById(R.id.tv_progress_text);
         progressTV.setText(text);
         progressDialog.show();
+    }
+
+    public void pointsIncrease(View view){
+        if (et_card_points.getText().toString().isEmpty()){
+            pointCount = 1000;
+        }else{
+            pointCount = Integer.parseInt(et_card_points.getText().toString());
+        }
+
+        if (pointCount > Constants.MAX_POINTS_TASK){
+            pointCount = Constants.MAX_POINTS_TASK;
+        }else{
+            pointCount = Math.min(Constants.MAX_POINTS_TASK, pointCount + 1);
+        }
+
+        updatePointsCount();
+    }
+
+    public void pointsDecrease(View view){
+        if (et_card_points.getText().toString().isEmpty()){
+            pointCount = 0;
+        }else{
+            pointCount = Integer.parseInt(et_card_points.getText().toString());
+        }
+
+        if (pointCount > Constants.MAX_POINTS_TASK){
+            pointCount = Constants.MIN_POINTS_TASK;
+        }else{
+            pointCount = Math.max(Constants.MIN_POINTS_TASK, pointCount - 1);
+        }
+
+        updatePointsCount();
+    }
+
+    public void updatePointsCount(){
+        et_card_points.setText(String.valueOf(pointCount));
     }
 }

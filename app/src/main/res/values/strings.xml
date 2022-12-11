@@ -29,4 +29,5 @@
     <string name="select_date">Select Date</string>
     <string name="task_completed">Task Completed?</string>
     <string name="task_complete">Task Complete</string>
+    <string name="points">Points</string>
 </resources>
