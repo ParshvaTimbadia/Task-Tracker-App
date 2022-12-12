@@ -104,15 +104,15 @@ public class MainActivity extends AppCompatActivity {
         AlarmManager alarm=(AlarmManager) getSystemService(ALARM_SERVICE);
         Calendar cal=Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY,8);
-        cal.set(Calendar.MINUTE,30);
+        cal.set(Calendar.MINUTE,00);
         cal.set(Calendar.SECOND,1);
 
-        alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pIntent);
+        alarm.setWindow(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pIntent);
         cal.set(Calendar.HOUR_OF_DAY,10);
         cal.set(Calendar.MINUTE,0);
         cal.set(Calendar.SECOND,10);
 
-        alarm.setRepeating(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,dueDatePIntent);
+        alarm.setWindow(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),AlarmManager.INTERVAL_DAY,dueDatePIntent);
     }
 
     private void createNotificationChannel() {
