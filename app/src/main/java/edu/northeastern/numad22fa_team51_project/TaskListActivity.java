@@ -297,6 +297,7 @@ public class TaskListActivity extends AppCompatActivity {
             new AlertDialog.Builder(viewHolder.itemView.getContext())
                     .setTitle("Delete Task")
                     .setMessage("Are you sure you want to delete this task?")
+                    .setCancelable(false)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -304,6 +305,7 @@ public class TaskListActivity extends AppCompatActivity {
                             if (task.getIsComplete().equals("false")){
                                 new AlertDialog.Builder(viewHolder.itemView.getContext()).setTitle("Delete Task")
                                         .setMessage("The task is still not completed. Are you sure you want to delete?")
+                                        .setCancelable(false)
                                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {

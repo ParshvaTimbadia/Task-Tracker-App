@@ -304,6 +304,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
             new AlertDialog.Builder(viewHolder.itemView.getContext())
                     .setTitle("Delete Group")
                     .setMessage("Are you sure you want to delete this board? There might be some active tasks")
+                    .setCancelable(false)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

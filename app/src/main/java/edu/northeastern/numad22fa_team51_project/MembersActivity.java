@@ -226,18 +226,20 @@ public class MembersActivity extends AppCompatActivity {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot datasnapShot) {
-                DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
-                String assignTo = assignedToSnapShot.getValue().toString();
-                String[] assignToList = assignTo.split(",");
-                ArrayList<String> assignToArrayList = new ArrayList<String>(
-                        Arrays.asList(assignToList));
-                assignToArrayList.add(user_id);
-                String StringList = "";
-                for (int i = 0; i < assignToArrayList.size(); i++) {
-                    StringList += assignToArrayList.get(i) + ",";
+                if (datasnapShot.hasChildren()){
+                    DataSnapshot assignedToSnapShot = datasnapShot.child("group_assignedTo");
+                    String assignTo = assignedToSnapShot.getValue().toString();
+                    String[] assignToList = assignTo.split(",");
+                    ArrayList<String> assignToArrayList = new ArrayList<String>(
+                            Arrays.asList(assignToList));
+                    assignToArrayList.add(user_id);
+                    String StringList = "";
+                    for (int i = 0; i < assignToArrayList.size(); i++) {
+                        StringList += assignToArrayList.get(i) + ",";
+                    }
+                    Map<String, Object> update = new HashMap<>();
+                    updateDB(datasnapShot.getRef(), StringList);
                 }
-                Map<String, Object> update = new HashMap<>();
-                updateDB(datasnapShot.getRef(), StringList);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -269,6 +271,7 @@ public class MembersActivity extends AppCompatActivity {
             new AlertDialog.Builder(viewHolder.itemView.getContext())
                     .setTitle("Remove Group Member")
                     .setMessage("Are you sure you want to remove this group member?")
+                    .setCancelable(false)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
