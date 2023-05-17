@@ -13,5 +13,5 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = "NUMAD22Fa_Team51_Project"
+rootProject.name = "<root_project_name_here>"
 include ':app'
