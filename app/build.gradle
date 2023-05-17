@@ -6,16 +6,16 @@ plugins {
 android {
     signingConfigs {
         release {
-            storeFile file('C:\\Users\\Divit\\AndroidStudioProjects\\KeyStore\\thirdApp.jks')
-            storePassword '123456'
-            keyAlias 'key3'
-            keyPassword '123456'
+            storeFile file('<your_path_to_.jks_file>')
+            storePassword ''
+            keyAlias ''
+            keyPassword ''
         }
     }
     compileSdk 32
 
     defaultConfig {
-        applicationId "edu.northeastern.numad22fa_team51_project"
+        applicationId ""
         minSdk 27
         targetSdk 32
         versionCode 1
