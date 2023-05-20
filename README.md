@@ -4,14 +4,12 @@ Split tasks amongst friends, roommates and more. Divide and conquer!
 > Tools - Android Studio, Android SDKs, Firebase
 
 ## About
-
 People living with roommates generally find that it is sometimes difficult to delegate chores/tasks to all those who reside in the house. Here is an app that could be a solution to this problem by having a fixed set of tasks for the week/month assigned to all members of a group by a coordinator. It’s up to you to take turns and be the coordinator or change the same over certain intervals to keep everyone involved. A common shared view of the task board comes in handy for quick reference of the remaining tasks. An apk of the app has also been included.
 
 *Target audience:* Everyone. Although, people living with roommates or housemates would be able to better relate to the functionalities on offer. However, parents can also use this app to delegate certain tasks amongst their children or to have a common task board for the household for quick reference.
 
 ## Execution
-
-Install Android Studio and clone the repository. Load the repository as an android project. The app would need to be connected to firebase. Authentication would have to be set up alongside an instance of realtime database. More information here https://firebase.google.com/docs/android/setup and replace the `google-services.json`, with your version of the same. Also, one would have to do a *clean and rebuild project* in Android Studio, to build the project again locally.
+Install Android Studio and clone the repository. Load the repository as an android project. The app would need to be connected to firebase. Authentication would have to be set up alongside an instance of realtime database. More information here *https://firebase.google.com/docs/android/setup* and replace the `google-services.json`, with your version of the same. Also, one would have to do a *clean and rebuild project* in Android Studio, to build the project again locally.
 
 ## App Screens
 
@@ -57,7 +55,7 @@ Fields shown match the state of the app shown above in the screens, for more cla
 
 **Boards**
 <p align="center">
-<img src="https://github.com/divitvasu/Task-Tracker-App/assets/30820920/325028ae-b210-45ee-893c-3ca845d0c3ae" alt="Image" width="350" height="225">
+<img src="https://github.com/divitvasu/Task-Tracker-App/assets/30820920/325028ae-b210-45ee-893c-3ca845d0c3ae" alt="Image" width="350" height="175">
 </p>
 
 **Tasks**
